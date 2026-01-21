@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e스포츠 토너먼트 - 참가 신청 & 대회 생성</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --primary: #6366f1; --primary-light: #818cf8; --secondary: #0ea5e9; --accent: #f59e0b;
+    --success: #10b981; --danger: #ef4444; --dark: #0f172a; --dark-light: #1e293b;
+    --gray: #64748b; --gray-light: #94a3b8; --light: #f1f5f9; --white: #ffffff;
+    --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--dark); color: var(--light); line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.navbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); z-index: 1000; padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.nav-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+.logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 900; color: var(--white); text-decoration: none; }
+.logo i { color: var(--accent); font-size: 1.8rem; }
+.nav-links { display: flex; list-style: none; gap: 30px; }
+.nav-links a { color: var(--gray-light); text-decoration: none; font-weight: 500; transition: color 0.3s; }
+.nav-links a:hover { color: var(--white); }
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 100px 20px; background: radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 50%, rgba(14, 165, 233, 0.15) 0%, transparent 50%), var(--dark); }
+.hero-content h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-content p { font-size: 1.2rem; color: var(--gray-light); margin-bottom: 40px; }
+.hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; border-radius: 12px; font-size: 1rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; transition: all 0.3s ease; }
+.btn-primary { background: var(--gradient); color: var(--white); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5); }
+.btn-secondary { background: rgba(255, 255, 255, 0.1); color: var(--white); border: 1px solid rgba(255, 255, 255, 0.2); }
+.btn-large { padding: 18px 36px; font-size: 1.1rem; width: 100%; justify-content: center; }
+.btn-small { padding: 10px 20px; font-size: 0.9rem; }
+section { padding: 100px 0; }
+.section-title { font-size: 2.2rem; font-weight: 700; text-align: center; margin-bottom: 50px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+.section-title i { color: var(--accent); }
+.tournaments-section { background: var(--dark-light); }
+.tournaments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 25px; }
+.tournament-card { background: var(--dark); border-radius: 20px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+.tournament-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow); }
+.tournament-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+.tournament-card h3 { font-size: 1.3rem; font-weight: 700; color: var(--white); }
+.tournament-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.badge-open { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+.badge-full { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+.badge-started { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
+.tournament-game { display: inline-flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.2); color: var(--primary-light); padding: 5px 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 15px; }
+.tournament-info { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.tournament-info-item { display: flex; align-items: center; gap: 10px; color: var(--gray-light); font-size: 0.9rem; }
+.tournament-info-item i { width: 20px; color: var(--gray); }
+.tournament-description { color: var(--gray); font-size: 0.9rem; margin-bottom: 20px; }
+.tournament-footer { display: flex; gap: 10px; }
+.tournament-footer .btn { flex: 1; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
+.empty-state i { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; display: block; }
+.empty-state p { margin-bottom: 20px; }
+.create-section { background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), var(--dark); }
+.tournament-form { max-width: 700px; margin: 0 auto; background: var(--dark-light); padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.form-group { margin-bottom: 25px; }
+.form-group label { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 500; color: var(--light); }
+.form-group label i { color: var(--primary-light); }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 15px 20px; background: var(--dark); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: var(--white); font-size: 1rem; font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+.form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+.modal.active { display: flex; }
+.modal-content { background: var(--dark-light); border-radius: 24px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.1); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 25px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.modal-header h3 { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; }
+.modal-header h3 i { color: var(--primary-light); }
+.close-btn { background: none; border: none; color: var(--gray); font-size: 1.5rem; cursor: pointer; }
+.close-btn:hover { color: var(--white); }
+.modal-content form { padding: 30px; }
+.team-members { background: var(--dark); border-radius: 16px; padding: 20px; margin-bottom: 25px; }
+.team-members h4 { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--light); }
+.team-members h4 i { color: var(--secondary); }
+.member-card { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.member-card:last-child { margin-bottom: 0; }
+.member-number { width: 35px; height: 35px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.member-fields { display: flex; gap: 10px; flex: 1; }
+.member-fields input { flex: 1; padding: 12px 15px; background: var(--dark-light); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: var(--white); font-size: 0.9rem; }
+.member-fields input:focus { outline: none; border-color: var(--primary); }
+.bracket-section { background: var(--dark-light); }
+.bracket-selector { display: flex; align-items: center; gap: 20px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+.bracket-selector label { font-weight: 500; }
+.bracket-selector select { padding: 12px 20px; background: var(--dark); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: var(--white); font-size: 1rem; min-width: 250px; }
+.bracket-container { overflow-x: auto; padding: 20px; }
+.bracket-empty { text-align: center; padding: 80px 20px; color: var(--gray); }
+.bracket-empty i { font-size: 4rem; margin-bottom: 20px; opacity: 0.3; display: block; }
+.bracket { display: flex; gap: 50px; justify-content: center; min-width: fit-content; padding: 20px; }
+.bracket-round { display: flex; flex-direction: column; justify-content: space-around; gap: 20px; }
+.round-title { text-align: center; font-weight: 700; color: var(--accent); margin-bottom: 20px; font-size: 0.9rem; text-transform: uppercase; }
+.bracket-match { background: var(--dark); border-radius: 12px; padding: 15px; min-width: 200px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.match-team { padding: 10px 15px; background: var(--dark-light); border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+.match-team:last-child { margin-bottom: 0; }
+.match-team.winner { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--success); }
+.match-team.tbd { color: var(--gray); font-style: italic; }
+.match-team .score { font-weight: 700; color: var(--accent); }
+.footer { background: var(--dark); padding: 40px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.footer-content { text-align: center; }
+.footer-logo { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
+.footer-logo i { color: var(--accent); }
+.footer p { color: var(--gray); font-size: 0.9rem; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: var(--white); padding: 15px 30px; border-radius: 12px; display: flex; align-items: center; gap: 10px; font-weight: 500; box-shadow: var(--shadow); transition: transform 0.3s ease; z-index: 3000; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--danger); }
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero-content h1 { font-size: 2.5rem; }
+    .section-title { font-size: 1.8rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .tournament-form { padding: 25px; }
+    .tournaments-grid { grid-template-columns: 1fr; }
+    .bracket-selector { flex-direction: column; }
+    .bracket-selector select { width: 100%; }
+    .member-fields { flex-direction: column; }
+}
+    </style>
+</head>
+<body>
+    <nav class="navbar"><div class="nav-container"><a href="#" class="logo"><i class="fas fa-trophy"></i><span>TOURNAMENT</span></a><ul class="nav-links"><li><a href="#home">홈</a></li><li><a href="#tournaments">대회 목록</a></li><li><a href="#create">대회 생성</a></li><li><a href="#bracket">대진표</a></li></ul></div></nav>
+    <section id="home" class="hero"><div class="hero-content"><h1>e스포츠 토너먼트</h1><p>2인 1팀으로 참가하는 싱글 엘리미네이션 대회</p><div class="hero-buttons"><a href="#tournaments" class="btn btn-primary">대회 참가하기</a><a href="#create" class="btn btn-secondary">대회 개설하기</a></div></div></section>
+    <section id="tournaments" class="tournaments-section"><div class="container"><h2 class="section-title"><i class="fas fa-list"></i>진행 중인 대회</h2><div class="tournaments-grid" id="tournamentsGrid"></div><div class="empty-state" id="emptyTournaments"><i class="fas fa-inbox"></i><p>아직 등록된 대회가 없습니다.</p><a href="#create" class="btn btn-primary">첫 대회 만들기</a></div></div></section>
+    <section id="create" class="create-section"><div class="container"><h2 class="section-title"><i class="fas fa-plus-circle"></i>새 토너먼트 생성</h2><form id="createTournamentForm" class="tournament-form"><div class="form-group"><label><i class="fas fa-heading"></i>대회명</label><input type="text" id="tournamentName" placeholder="예: 2024 겨울 챔피언십" required></div><div class="form-group"><label><i class="fas fa-gamepad"></i>게임 종목</label><input type="text" id="gameName" placeholder="예: 리그 오브 레전드, 발로란트" required></div><div class="form-row"><div class="form-group"><label><i class="fas fa-users"></i>최대 팀 수</label><select id="maxTeams" required><option value="4">4팀</option><option value="8" selected>8팀</option><option value="16">16팀</option><option value="32">32팀</option></select></div><div class="form-group"><label><i class="fas fa-calendar"></i>대회 시작일</label><input type="datetime-local" id="startDate" required></div></div><div class="form-group"><label><i class="fas fa-info-circle"></i>대회 설명</label><textarea id="description" rows="4" placeholder="대회 규칙, 상품, 참가 조건 등"></textarea></div><div class="form-group"><label><i class="fas fa-gift"></i>상금/상품</label><input type="text" id="prizePool" placeholder="예: 1등 100만원, 2등 50만원"></div><button type="submit" class="btn btn-primary btn-large"><i class="fas fa-rocket"></i>토너먼트 생성</button></form></div></section>
+    <div id="registerModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-user-plus"></i> 참가 신청</h3><button class="close-btn" onclick="closeModal()">&times;</button></div><form id="registerForm"><input type="hidden" id="registerTournamentId"><div class="form-group"><label><i class="fas fa-flag"></i>팀 이름</label><input type="text" id="teamName" placeholder="팀 이름" required></div><div class="team-members"><h4><i class="fas fa-users"></i> 팀원 정보 (2인)</h4><div class="member-card"><span class="member-number">1</span><div class="member-fields"><input type="text" id="member1Name" placeholder="이름/닉네임" required><input type="text" id="member1Id" placeholder="게임 ID" required></div></div><div class="member-card"><span class="member-number">2</span><div class="member-fields"><input type="text" id="member2Name" placeholder="이름/닉네임" required><input type="text" id="member2Id" placeholder="게임 ID" required></div></div></div><div class="form-group"><label><i class="fas fa-envelope"></i>연락처</label><input type="text" id="contactInfo" placeholder="이메일 또는 디스코드" required></div><button type="submit" class="btn btn-primary btn-large"><i class="fas fa-check"></i>참가 신청 완료</button></form></div></div>
+    <section id="bracket" class="bracket-section"><div class="container"><h2 class="section-title"><i class="fas fa-sitemap"></i>토너먼트 대진표</h2><div class="bracket-selector"><label>대회 선택:</label><select id="bracketSelect"><option value="">-- 대회를 선택하세요 --</option></select><button class="btn btn-secondary" onclick="generateBracket()"><i class="fas fa-random"></i>대진표 생성</button></div><div class="bracket-container" id="bracketContainer"><div class="bracket-empty"><i class="fas fa-sitemap"></i><p>대회를 선택하고 대진표를 생성하세요</p></div></div></div></section>
+    <footer class="footer"><div class="container"><div class="footer-content"><div class="footer-logo"><i class="fas fa-trophy"></i><span>TOURNAMENT</span></div><p>© 2024 e스포츠 토너먼트</p></div></div></footer>
+    <div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toastMessage"></span></div>
+<script>
+let tournaments=JSON.parse(localStorage.getItem('tournaments'))||[];
+document.addEventListener('DOMContentLoaded',()=>{render();updateSel();document.getElementById('createTournamentForm').addEventListener('submit',createT);document.getElementById('registerForm').addEventListener('submit',register);document.getElementById('registerModal').addEventListener('click',e=>{if(e.target.id==='registerModal')closeModal()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});setDate();document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',function(e){e.preventDefault();document.querySelector(this.getAttribute('href'))?.scrollIntoView({behavior:'smooth'})}))});
+function setDate(){const d=new Date();d.setDate(d.getDate()+7);d.setHours(14,0,0,0);document.getElementById('startDate').value=d.toISOString().slice(0,16)}
+function createT(e){e.preventDefault();const t={id:Date.now(),name:document.getElementById('tournamentName').value,game:document.getElementById('gameName').value,maxTeams:+document.getElementById('maxTeams').value,startDate:document.getElementById('startDate').value,description:document.getElementById('description').value,prizePool:document.getElementById('prizePool').value,teams:[],status:'open',bracket:null};tournaments.push(t);save();render();updateSel();e.target.reset();setDate();toast('토너먼트가 생성되었습니다!');document.getElementById('tournaments').scrollIntoView({behavior:'smooth'})}
+function render(){const g=document.getElementById('tournamentsGrid'),em=document.getElementById('emptyTournaments');if(!tournaments.length){g.style.display='none';em.style.display='block';return}g.style.display='grid';em.style.display='none';g.innerHTML=tournaments.map(t=>{const st=t.status==='started'?{t:'진행중',c:'badge-started'}:t.teams.length>=t.maxTeams?{t:'마감',c:'badge-full'}:{t:'모집중',c:'badge-open'};return`<div class="tournament-card"><div class="tournament-card-header"><h3>${esc(t.name)}</h3><span class="tournament-badge ${st.c}">${st.t}</span></div><div class="tournament-game"><i class="fas fa-gamepad"></i>${esc(t.game)}</div><div class="tournament-info"><div class="tournament-info-item"><i class="fas fa-users"></i>${t.teams.length}/${t.maxTeams} 팀</div><div class="tournament-info-item"><i class="fas fa-calendar"></i>${fmtDate(t.startDate)}</div>${t.prizePool?`<div class="tournament-info-item"><i class="fas fa-gift"></i>${esc(t.prizePool)}</div>`:''}</div>${t.description?`<p class="tournament-description">${esc(t.description)}</p>`:''}<div class="tournament-footer">${t.status==='open'?`<button class="btn btn-primary btn-small" onclick="openReg(${t.id})"><i class="fas fa-user-plus"></i>참가</button>`:''}<button class="btn btn-secondary btn-small" onclick="view(${t.id})"><i class="fas fa-eye"></i>상세</button></div></div>`}).join('')}
+function openReg(id){const t=tournaments.find(x=>x.id===id);if(!t||t.teams.length>=t.maxTeams){toast('마감되었습니다',1);return}document.getElementById('registerTournamentId').value=id;document.getElementById('registerModal').classList.add('active');document.body.style.overflow='hidden'}
+function closeModal(){document.getElementById('registerModal').classList.remove('active');document.body.style.overflow='';document.getElementById('registerForm').reset()}
+function register(e){e.preventDefault();const id=+document.getElementById('registerTournamentId').value,t=tournaments.find(x=>x.id===id);if(!t){toast('대회 없음',1);return}if(t.teams.length>=t.maxTeams){toast('마감됨',1);closeModal();return}const team={id:Date.now(),name:document.getElementById('teamName').value,members:[{name:document.getElementById('member1Name').value,gameId:document.getElementById('member1Id').value},{name:document.getElementById('member2Name').value,gameId:document.getElementById('member2Id').value}],contact:document.getElementById('contactInfo').value};if(t.teams.some(x=>x.name.toLowerCase()===team.name.toLowerCase())){toast('팀명 중복',1);return}t.teams.push(team);if(t.teams.length>=t.maxTeams)t.status='full';save();render();closeModal();toast(`"${team.name}" 참가완료!`)}
+function view(id){const t=tournaments.find(x=>x.id===id);if(!t)return;document.getElementById('bracketSelect').value=id;document.getElementById('bracket').scrollIntoView({behavior:'smooth'});showDetail(t)}
+function showDetail(t){const c=document.getElementById('bracketContainer');if(!t.teams.length){c.innerHTML=`<div class="bracket-empty"><i class="fas fa-users"></i><p>참가팀 없음</p></div>`;return}let h=`<div style="max-width:800px;margin:0 auto"><h3 style="margin-bottom:20px;color:var(--accent)"><i class="fas fa-users"></i> 참가팀 (${t.teams.length}/${t.maxTeams})</h3><div style="display:grid;gap:15px">`;t.teams.forEach((tm,i)=>{h+=`<div style="background:var(--dark);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.1)"><h4 style="color:var(--white);display:flex;align-items:center;gap:10px;margin-bottom:15px"><span style="background:var(--gradient);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center">${i+1}</span>${esc(tm.name)}</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${tm.members.map((m,j)=>`<div style="background:rgba(255,255,255,0.05);padding:10px 15px;border-radius:8px"><div style="font-size:0.8rem;color:var(--gray)">팀원 ${j+1}</div><div style="color:var(--light)">${esc(m.name)}</div><div style="color:var(--primary-light);font-size:0.9rem">${esc(m.gameId)}</div></div>`).join('')}</div></div>`});h+=`</div>${t.teams.length>=2?`<div style="text-align:center;margin-top:30px"><button class="btn btn-primary" onclick="generateBracket()"><i class="fas fa-random"></i>대진표 생성</button></div>`:`<p style="text-align:center;color:var(--gray);margin-top:20px">최소 2팀 필요</p>`}</div>`;c.innerHTML=h}
+function updateSel(){const s=document.getElementById('bracketSelect');s.innerHTML='<option value="">-- 대회 선택 --</option>';tournaments.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${t.name} (${t.teams.length}팀)`;s.appendChild(o)})}
+function generateBracket(){const id=+document.getElementById('bracketSelect').value,t=tournaments.find(x=>x.id===id);if(!t){toast('대회 선택',1);return}if(t.teams.length<2){toast('2팀 필요',1);return}const sh=[...t.teams].sort(()=>Math.random()-0.5),sz=Math.pow(2,Math.ceil(Math.log2(sh.length)));while(sh.length<sz)sh.push({name:'BYE',isBye:1});const rounds=[];let cur=[];for(let i=0;i<sh.length;i+=2){const m={id:`m-${rounds.length}-${cur.length}`,team1:sh[i],team2:sh[i+1],winner:null,score1:null,score2:null};if(sh[i].isBye)m.winner=sh[i+1];else if(sh[i+1].isBye)m.winner=sh[i];cur.push(m)}rounds.push(cur);while(cur.length>1){const nx=[];for(let i=0;i<cur.length;i+=2)nx.push({id:`m-${rounds.length}-${nx.length}`,team1:null,team2:null,winner:null,score1:null,score2:null});rounds.push(nx);cur=nx}for(let r=0;r<rounds.length-1;r++)for(let m=0;m<rounds[r].length;m+=2){const ni=Math.floor(m/2);if(rounds[r][m].winner&&!rounds[r][m].winner.isBye)rounds[r+1][ni].team1=rounds[r][m].winner;if(rounds[r][m+1]?.winner&&!rounds[r][m+1].winner.isBye)rounds[r+1][ni].team2=rounds[r][m+1].winner}t.bracket=rounds;t.status='started';save();render();renderBracket(t);toast('대진표 생성!')}
+function renderBracket(t){const c=document.getElementById('bracketContainer');if(!t.bracket){c.innerHTML=`<div class="bracket-empty"><i class="fas fa-sitemap"></i><p>대진표 없음</p></div>`;return}const names=t.bracket.map((_,i)=>{const r=t.bracket.length-i;return r===1?'결승':r===2?'준결승':r===3?'8강':r===4?'16강':`${Math.pow(2,r)}강`});let h='<div class="bracket">';t.bracket.forEach((rd,ri)=>{h+=`<div class="bracket-round"><div class="round-title">${names[ri]}</div>`;rd.forEach(m=>{const t1=m.team1?(m.team1.isBye?'BYE':m.team1.name):'TBD',t2=m.team2?(m.team2.isBye?'BYE':m.team2.name):'TBD',c1=m.team1?.isBye?'tbd':m.winner===m.team1?'winner':'',c2=m.team2?.isBye?'tbd':m.winner===m.team2?'winner':'',can=m.team1&&m.team2&&!m.team1.isBye&&!m.team2.isBye&&!m.winner;h+=`<div class="bracket-match"><div class="match-team ${c1}" ${can?`onclick="setW('${t.id}','${m.id}',1)" style="cursor:pointer"`:''}}><span>${esc(t1)}</span>${m.score1!==null?`<span class="score">${m.score1}</span>`:''}</div><div class="match-team ${c2}" ${can?`onclick="setW('${t.id}','${m.id}',2)" style="cursor:pointer"`:''}><span>${esc(t2)}</span>${m.score2!==null?`<span class="score">${m.score2}</span>`:''}</div></div>`});h+='</div>'});h+='</div>';c.innerHTML=h}
+function setW(tid,mid,tn){const t=tournaments.find(x=>x.id===+tid);if(!t?.bracket)return;let match,ri,mi;for(let r=0;r<t.bracket.length;r++)for(let m=0;m<t.bracket[r].length;m++)if(t.bracket[r][m].id===mid){match=t.bracket[r][m];ri=r;mi=m;break}if(!match)return;match.winner=tn===1?match.team1:match.team2;match.score1=tn===1?1:0;match.score2=tn===2?1:0;if(ri<t.bracket.length-1){const ni=Math.floor(mi/2);if(mi%2===0)t.bracket[ri+1][ni].team1=match.winner;else t.bracket[ri+1][ni].team2=match.winner}save();renderBracket(t);const f=t.bracket[t.bracket.length-1][0];if(f.winner)toast(`🏆 "${f.winner.name}" 우승!`)}
+function save(){localStorage.setItem('tournaments',JSON.stringify(tournaments))}
+function toast(m,e){const t=document.getElementById('toast'),msg=document.getElementById('toastMessage');msg.textContent=m;t.classList.remove('error');if(e){t.classList.add('error');t.querySelector('i').className='fas fa-exclamation-circle'}else t.querySelector('i').className='fas fa-check-circle';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+function fmtDate(d){return new Date(d).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+</script>
+</body>
+</html>
