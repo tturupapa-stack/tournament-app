@@ -1,0 +1,39 @@
+/* ========================================
+   UCL PRESTIGE THEME - Variables
+   Premium Visual Design System v2.0
+   ======================================== */
+
+/* UCL Theme Color Variables */
+:root {
+  /* Primary Colors - Midnight Blue Gradient */
+  --ucl-dark-blue: #000428;
+  --ucl-navy: #004e92;
+  --ucl-deep-blue: #001d3d;
+  --ucl-space-black: #0a0a1a;
+
+  /* Accent Colors - Premium Metallic */
+  --ucl-gold: #FFD700;
+  --ucl-gold-bright: #FFE55C;
+  --ucl-gold-dark: #DAA520;
+  --ucl-gold-glow: rgba(255, 215, 0, 0.6);
+  --ucl-gold-intense: rgba(255, 215, 0, 0.9);
+  --ucl-silver: #C0C0C0;
+  --ucl-silver-light: #E8E8E8;
+  --ucl-silver-glow: rgba(192, 192, 192, 0.5);
+
+  /* Glass Effect - Enhanced */
+  --ucl-glass-bg: rgba(255, 255, 255, 0.06);
+  --ucl-glass-bg-strong: rgba(255, 255, 255, 0.1);
+  --ucl-glass-border: rgba(192, 192, 192, 0.25);
+  --ucl-glass-border-strong: rgba(192, 192, 192, 0.45);
+  --ucl-glass-highlight: rgba(255, 255, 255, 0.15);
+  --ucl-glass-inner-glow: rgba(255, 255, 255, 0.08);
+
+  /* Line Effects */
+  --ucl-line-default: rgba(192, 192, 192, 0.3);
+  --ucl-line-active: var(--ucl-gold);
+  --ucl-line-glow: rgba(255, 215, 0, 0.4);
+
+  /* Typography - Montserrat */
+  --font-ucl-headline: var(--font-montserrat), 'Montserrat', sans-serif;
+}

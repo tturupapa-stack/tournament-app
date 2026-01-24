@@ -1,0 +1,191 @@
+/* ========================================
+   UCL PRESTIGE THEME - Typography
+   Premium Text Styles v2.0
+   ======================================== */
+
+/* UCL Typography - Premium Montserrat */
+.ucl-title {
+  font-family: var(--font-ucl-headline);
+  font-weight: 800;
+  color: white;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ucl-title-xl {
+  font-family: var(--font-ucl-headline);
+  font-weight: 900;
+  font-size: 2.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #e8e8e8 40%,
+      #c0c0c0 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.ucl-title-gold {
+  font-family: var(--font-ucl-headline);
+  font-weight: 700;
+  background:
+    linear-gradient(
+      90deg,
+      var(--ucl-gold-dark) 0%,
+      var(--ucl-gold-bright) 25%,
+      var(--ucl-gold) 50%,
+      var(--ucl-gold-bright) 75%,
+      var(--ucl-gold-dark) 100%
+    );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ucl-shimmer 4s linear infinite;
+  filter: drop-shadow(0 0 10px var(--ucl-gold-glow));
+}
+
+/* Team Name Styles */
+.ucl-team-name {
+  color: var(--ucl-silver-light);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+}
+
+.ucl-team-name-winner {
+  color: var(--ucl-gold) !important;
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--ucl-gold-glow);
+  animation: ucl-celebration 2s ease-in-out infinite;
+}
+
+.ucl-team-name-loser {
+  color: rgba(192, 192, 192, 0.4);
+  text-decoration: line-through;
+}
+
+.ucl-team-name-tbd {
+  color: rgba(192, 192, 192, 0.3);
+  font-style: italic;
+}
+
+/* VS Separator */
+.ucl-vs {
+  color: rgba(192, 192, 192, 0.5);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Round Labels - Bold & Dramatic */
+.ucl-round-label {
+  font-family: var(--font-ucl-headline);
+  color: var(--ucl-silver);
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  text-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(192, 192, 192, 0.2);
+}
+
+.ucl-round-label-finals {
+  font-family: var(--font-ucl-headline);
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: 0.35em;
+  background:
+    linear-gradient(
+      90deg,
+      var(--ucl-gold-dark) 0%,
+      var(--ucl-gold-bright) 50%,
+      var(--ucl-gold-dark) 100%
+    );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ucl-shimmer 3s linear infinite;
+  filter: drop-shadow(0 0 15px var(--ucl-gold-glow));
+}
+
+/* Crown Icon Animation - ENHANCED with shimmer, wobble, and glow */
+.ucl-crown {
+  color: var(--ucl-gold);
+  filter: drop-shadow(0 0 5px var(--ucl-gold-glow));
+  animation:
+    ucl-crown-float 2.5s ease-in-out infinite,
+    ucl-crown-shimmer 3s ease-in-out infinite,
+    ucl-crown-wobble 4s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+/* Crown with extra pulse on hover */
+.ucl-crown:hover {
+  animation:
+    ucl-crown-glow-pulse 1s ease-in-out infinite,
+    ucl-crown-spin 0.6s ease-in-out;
+}
+
+/* 3D Icon Styles */
+.ucl-icon-3d {
+  display: inline-block;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.ucl-icon-3d:hover {
+  transform: scale(1.15) rotate(5deg);
+  filter:
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5))
+    drop-shadow(0 0 15px var(--ucl-gold-glow));
+}
+
+/* 3D Crown specific */
+.ucl-crown-3d {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  animation: ucl-crown-float 2.5s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 6px var(--ucl-gold-glow))
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+.ucl-crown-3d:hover {
+  animation: ucl-crown-spin 0.6s ease-in-out;
+  filter:
+    drop-shadow(0 0 12px var(--ucl-gold-glow))
+    drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
+}
+
+/* 3D Trophy specific */
+.ucl-trophy-3d {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 10px var(--ucl-gold-glow))
+    drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+  animation: ucl-trophy-glow 3s ease-in-out infinite;
+}
+
+.ucl-trophy-3d:hover {
+  transform: scale(1.1);
+  filter:
+    drop-shadow(0 0 25px var(--ucl-gold-glow))
+    drop-shadow(0 0 40px rgba(255, 215, 0, 0.4))
+    drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5));
+}

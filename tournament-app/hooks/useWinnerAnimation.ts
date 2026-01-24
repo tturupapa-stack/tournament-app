@@ -50,12 +50,14 @@ export function useWinnerAnimation(
 
   const [animatingMatch, setAnimatingMatch] = useState<AnimatingMatch | null>(null)
   const [animationPhase, setAnimationPhase] = useState(0)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const animationQueueRef = useRef<AnimatingMatch[]>([])
-  const isProcessingRef = useRef(false)
   const timeoutsRef = useRef<NodeJS.Timeout[]>([])
   const onAnimationStartRef = useRef(onAnimationStart)
   const onAnimationCompleteRef = useRef(onAnimationComplete)
+  // Internal ref to track processing state without triggering re-renders in callbacks
+  const isProcessingInternalRef = useRef(false)
 
   // Keep callback refs updated
   useEffect(() => {
@@ -79,14 +81,19 @@ export function useWinnerAnimation(
     return timeoutId
   }, [])
 
+  // Ref to hold the processNextAnimation function for self-referencing
+  const processNextAnimationRef = useRef<() => void>(() => {})
+
   // Process the next animation in queue
   const processNextAnimation = useCallback(() => {
     if (animationQueueRef.current.length === 0) {
-      isProcessingRef.current = false
+      isProcessingInternalRef.current = false
+      setIsProcessing(false)
       return
     }
 
-    isProcessingRef.current = true
+    isProcessingInternalRef.current = true
+    setIsProcessing(true)
     const nextAnimation = animationQueueRef.current.shift()
 
     if (nextAnimation) {
@@ -107,13 +114,18 @@ export function useWinnerAnimation(
         setAnimatingMatch(null)
         onAnimationCompleteRef.current?.(nextAnimation)
 
-        // Process next animation after delay
+        // Process next animation after delay using ref
         addTimeout(() => {
-          processNextAnimation()
+          processNextAnimationRef.current()
         }, ANIMATION_TIMING.QUEUE_DELAY)
       }, ANIMATION_TIMING.TOTAL_DURATION)
     }
   }, [addTimeout])
+
+  // Keep processNextAnimationRef updated
+  useEffect(() => {
+    processNextAnimationRef.current = processNextAnimation
+  }, [processNextAnimation])
 
   // Queue a new animation
   const queueAnimation = useCallback(
@@ -129,8 +141,8 @@ export function useWinnerAnimation(
 
       animationQueueRef.current.push(match)
 
-      // Start processing if not already
-      if (!isProcessingRef.current) {
+      // Start processing if not already (use internal ref for synchronous check)
+      if (!isProcessingInternalRef.current) {
         processNextAnimation()
       }
     },
@@ -141,7 +153,8 @@ export function useWinnerAnimation(
   const clearAnimations = useCallback(() => {
     clearTimeouts()
     animationQueueRef.current = []
-    isProcessingRef.current = false
+    isProcessingInternalRef.current = false
+    setIsProcessing(false)
     setAnimatingMatch(null)
     setAnimationPhase(0)
   }, [clearTimeouts])
@@ -158,6 +171,6 @@ export function useWinnerAnimation(
     animationPhase,
     queueAnimation,
     clearAnimations,
-    isProcessing: isProcessingRef.current,
+    isProcessing,
   }
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Trophy, Loader2, AlertCircle, RefreshCw, WifiOff } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle, RefreshCw, WifiOff, Trophy } from 'lucide-react'
 import { TournamentBracket, BracketMatch } from '@/components/bracket/TournamentBracket'
 import {
   useRealtimeSubscription,
@@ -35,35 +35,104 @@ interface StarData {
   duration: number
   delay: number
   opacity: number
+  type: 'normal' | 'large' | 'gold'
 }
 
-// Starfield Component - Generate twinkling stars (client-side only to avoid hydration mismatch)
-function Starfield({ count = 100 }: { count?: number }) {
+// Shooting star data type
+interface ShootingStarData {
+  id: number
+  left: string
+  top: string
+  duration: number
+  delay: number
+  angle: number
+}
+
+// Helper function to generate star data - ENHANCED
+function generateStars(count: number): StarData[] {
+  return Array.from({ length: count }, (_, i) => {
+    const random = Math.random()
+    let type: 'normal' | 'large' | 'gold' = 'normal'
+    // 5% gold, 15% large, 80% normal
+    if (random > 0.95) type = 'gold'
+    else if (random > 0.80) type = 'large'
+
+    // Enhanced size variety: 1px ~ 4px
+    let size: number
+    if (type === 'gold') {
+      size = Math.random() * 1.5 + 3 // 3px ~ 4.5px
+    } else if (type === 'large') {
+      size = Math.random() * 1.5 + 2 // 2px ~ 3.5px
+    } else {
+      size = Math.random() * 1.5 + 0.8 // 0.8px ~ 2.3px
+    }
+
+    // Enhanced duration variety: 1s ~ 6s
+    let duration: number
+    if (type === 'gold') {
+      duration = Math.random() * 2 + 4 // 4s ~ 6s
+    } else if (type === 'large') {
+      duration = Math.random() * 2 + 2.5 // 2.5s ~ 4.5s
+    } else {
+      duration = Math.random() * 4 + 1 // 1s ~ 5s
+    }
+
+    return {
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size,
+      duration,
+      delay: Math.random() * 10, // more varied delay
+      opacity: type === 'gold' ? 0.95 : type === 'large' ? 0.8 : Math.random() * 0.6 + 0.2,
+      type,
+    }
+  })
+}
+
+// Helper function to generate shooting stars
+function generateShootingStars(count: number): ShootingStarData[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 70}%`,
+    top: `${Math.random() * 50}%`,
+    duration: Math.random() * 1.5 + 2, // 2s ~ 3.5s
+    delay: Math.random() * 15 + i * 8, // staggered, every 8s+ apart
+    angle: Math.random() * 20 - 10, // -10deg ~ +10deg variation
+  }))
+}
+
+// Starfield Component - Generate twinkling stars with variety (client-side only)
+function Starfield({ count = 100, shootingStarCount = 3 }: { count?: number; shootingStarCount?: number }) {
   const [stars, setStars] = useState<StarData[]>([])
+  const [shootingStars, setShootingStars] = useState<ShootingStarData[]>([])
+  const [shootingStarKey, setShootingStarKey] = useState(0)
 
   useEffect(() => {
     // Generate stars only on client side to avoid hydration mismatch
-    setStars(
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-        size: Math.random() * 2 + 1,
-        duration: Math.random() * 3 + 2,
-        delay: Math.random() * 5,
-        opacity: Math.random() * 0.5 + 0.3,
-      }))
-    )
-  }, [count])
+    setStars(generateStars(count))
+    setShootingStars(generateShootingStars(shootingStarCount))
+  }, [count, shootingStarCount])
 
-  if (stars.length === 0) return <div className="ucl-starfield" />
+  // Regenerate shooting stars periodically for continuous effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShootingStars(generateShootingStars(shootingStarCount))
+      setShootingStarKey(prev => prev + 1)
+    }, 30000) // Every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [shootingStarCount])
+
+  if (stars.length === 0) return <div className="ucl-starfield" aria-hidden="true" />
 
   return (
-    <div className="ucl-starfield">
+    <div className="ucl-starfield" aria-hidden="true">
+      {/* Regular stars */}
       {stars.map((star) => (
         <div
           key={star.id}
-          className="ucl-star"
+          className={`ucl-star ${star.type === 'large' ? 'ucl-star-large' : ''} ${star.type === 'gold' ? 'ucl-star-gold' : ''}`}
           style={
             {
               left: star.left,
@@ -73,6 +142,23 @@ function Starfield({ count = 100 }: { count?: number }) {
               opacity: star.opacity,
               '--duration': `${star.duration}s`,
               '--delay': `${star.delay}s`,
+              '--star-size': `${star.size}px`,
+            } as CustomCSSProperties
+          }
+        />
+      ))}
+      {/* Shooting stars */}
+      {shootingStars.map((shootingStar) => (
+        <div
+          key={`shooting-${shootingStarKey}-${shootingStar.id}`}
+          className="ucl-shooting-star"
+          style={
+            {
+              left: shootingStar.left,
+              top: shootingStar.top,
+              '--duration': `${shootingStar.duration}s`,
+              '--delay': `${shootingStar.delay}s`,
+              transform: `rotate(${-45 + shootingStar.angle}deg)`,
             } as CustomCSSProperties
           }
         />
@@ -88,32 +174,38 @@ interface ParticleData {
   duration: number
   delay: number
   size: number
+  isSparkle: boolean
 }
 
-// Floating Particles Component - Subtle gold particles (client-side only)
-function FloatingParticles({ count = 15 }: { count?: number }) {
+// Helper function to generate particle data
+function generateParticles(count: number): ParticleData[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    duration: Math.random() * 18 + 12,
+    delay: Math.random() * 15,
+    size: Math.random() * 4 + 2,
+    isSparkle: Math.random() > 0.7,
+  }))
+}
+
+// Floating Particles Component - Golden dust with sparkles (client-side only)
+function FloatingParticles({ count = 20 }: { count?: number }) {
   const [particles, setParticles] = useState<ParticleData[]>([])
 
   useEffect(() => {
-    setParticles(
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        duration: Math.random() * 20 + 15,
-        delay: Math.random() * 10,
-        size: Math.random() * 3 + 2,
-      }))
-    )
+    // Generate particles only on client side to avoid hydration mismatch
+    setParticles(generateParticles(count))
   }, [count])
 
-  if (particles.length === 0) return <div className="ucl-particles" />
+  if (particles.length === 0) return <div className="ucl-particles" aria-hidden="true" />
 
   return (
-    <div className="ucl-particles">
+    <div className="ucl-particles" aria-hidden="true">
       {particles.map((particle) => (
         <div
           key={particle.id}
-          className="ucl-particle"
+          className={`ucl-particle ${particle.isSparkle ? 'ucl-particle-sparkle' : ''}`}
           style={
             {
               left: particle.left,
@@ -141,30 +233,34 @@ interface ConfettiData {
   isCircle: boolean
 }
 
+// Helper function to generate confetti data - ENHANCED with more colors
+function generateConfetti(count: number): ConfettiData[] {
+  const colors = ['gold', 'silver', 'white', 'blue'] // Added blue
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    duration: Math.random() * 2.5 + 2.5, // longer duration for slower fall
+    delay: Math.random() * 1.5,
+    size: Math.random() * 10 + 6, // slightly larger
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rotation: Math.random() * 360,
+    isCircle: Math.random() > 0.6, // more rectangles
+  }))
+}
+
 // Confetti Component - Champion celebration (client-side only)
 function Confetti({ count = 50 }: { count?: number }) {
   const [confettiPieces, setConfettiPieces] = useState<ConfettiData[]>([])
 
   useEffect(() => {
-    const colors = ['gold', 'silver', 'white']
-    setConfettiPieces(
-      Array.from({ length: count }, (_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        duration: Math.random() * 2 + 2,
-        delay: Math.random() * 1,
-        size: Math.random() * 8 + 6,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        rotation: Math.random() * 360,
-        isCircle: Math.random() > 0.5,
-      }))
-    )
+    // Generate confetti only on client side to avoid hydration mismatch
+    setConfettiPieces(generateConfetti(count))
   }, [count])
 
   if (confettiPieces.length === 0) return null
 
   return (
-    <div className="ucl-confetti-container">
+    <div className="ucl-confetti-container" aria-hidden="true">
       {confettiPieces.map((piece) => (
         <div
           key={piece.id}
@@ -186,6 +282,80 @@ function Confetti({ count = 50 }: { count?: number }) {
   )
 }
 
+// Firework data type
+interface FireworkData {
+  id: number
+  x: string
+  y: string
+  particles: Array<{
+    id: number
+    tx: number
+    ty: number
+    duration: number
+    delay: number
+    color: string
+  }>
+}
+
+// Firework Component - ENHANCED with more particles and colors
+function Fireworks({ count = 5 }: { count?: number }) {
+  const [fireworks, setFireworks] = useState<FireworkData[]>([])
+
+  useEffect(() => {
+    // Enhanced color palette: gold, silver, white, blue
+    const colors = ['#FFD700', '#FFE55C', '#FFFFFF', '#C0C0C0', '#4a90d9', '#FFF8DC']
+    const newFireworks: FireworkData[] = []
+
+    for (let i = 0; i < count; i++) {
+      // More particles per firework (18 instead of 12)
+      const particles = Array.from({ length: 18 }, (_, j) => {
+        const angle = (j / 18) * Math.PI * 2
+        const distance = 70 + Math.random() * 80 // larger spread
+        return {
+          id: j,
+          tx: Math.cos(angle) * distance + (Math.random() - 0.5) * 20,
+          ty: Math.sin(angle) * distance + (Math.random() - 0.5) * 20,
+          duration: 0.7 + Math.random() * 0.5,
+          delay: i * 0.25 + Math.random() * 0.15, // slightly faster stagger
+          color: colors[Math.floor(Math.random() * colors.length)],
+        }
+      })
+
+      newFireworks.push({
+        id: i,
+        x: `${15 + Math.random() * 70}%`, // wider horizontal spread
+        y: `${15 + Math.random() * 50}%`, // wider vertical spread
+        particles,
+      })
+    }
+
+    setFireworks(newFireworks)
+  }, [count])
+
+  return (
+    <div className="ucl-firework-container" aria-hidden="true">
+      {fireworks.map((fw) => (
+        <div key={fw.id} style={{ position: 'absolute', left: fw.x, top: fw.y }}>
+          {fw.particles.map((p) => (
+            <div
+              key={p.id}
+              className="ucl-firework"
+              style={{
+                background: p.color,
+                boxShadow: `0 0 6px ${p.color}`,
+                '--tx': `${p.tx}px`,
+                '--ty': `${p.ty}px`,
+                '--duration': `${p.duration}s`,
+                '--delay': `${p.delay}s`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // Champion Celebration Overlay
 interface ChampionCelebrationProps {
   championName: string
@@ -195,35 +365,55 @@ interface ChampionCelebrationProps {
 function ChampionCelebration({ championName, onComplete }: ChampionCelebrationProps) {
   const [phase, setPhase] = useState<'flash' | 'reveal' | 'fadeout'>('flash')
   const timeoutsRef = useRef<NodeJS.Timeout[]>([])
+  const onCompleteRef = useRef(onComplete)
+  const isCleanedUpRef = useRef(false)
+
+  // Keep callback ref updated without triggering effect
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
 
   useEffect(() => {
-    // Clear previous timeouts on re-render
+    // Reset cleanup flag on mount
+    isCleanedUpRef.current = false
+
+    // Clear any existing timeouts to prevent accumulation
     timeoutsRef.current.forEach(clearTimeout)
     timeoutsRef.current = []
 
-    const flashTimer = setTimeout(() => setPhase('reveal'), 1000)
-    const fadeTimer = setTimeout(() => setPhase('fadeout'), 5000)
-    const completeTimer = setTimeout(() => onComplete(), 5500)
+    const flashTimer = setTimeout(() => {
+      if (!isCleanedUpRef.current) setPhase('reveal')
+    }, 1000)
+    const fadeTimer = setTimeout(() => {
+      if (!isCleanedUpRef.current) setPhase('fadeout')
+    }, 5000)
+    const completeTimer = setTimeout(() => {
+      if (!isCleanedUpRef.current) onCompleteRef.current()
+    }, 5500)
 
-    timeoutsRef.current.push(flashTimer, fadeTimer, completeTimer)
+    timeoutsRef.current = [flashTimer, fadeTimer, completeTimer]
 
     return () => {
+      isCleanedUpRef.current = true
       timeoutsRef.current.forEach(clearTimeout)
       timeoutsRef.current = []
     }
-  }, [onComplete])
+  }, []) // Empty dependency - only run on mount/unmount
 
   return (
     <>
-      {/* Gold Flash */}
+      {/* Gold Flash - Intense burst effect */}
       {phase === 'flash' && <div className="ucl-gold-flash-overlay" />}
 
-      {/* Confetti */}
-      <Confetti count={100} />
+      {/* Fireworks - ENHANCED: 12 fireworks (increased from 8) */}
+      <Fireworks count={12} />
+
+      {/* Confetti - ENHANCED: 120 pieces (increased from 50 default) */}
+      <Confetti count={120} />
 
       {/* Champion Container */}
       <div className={`ucl-champion-container ${phase === 'fadeout' ? 'ucl-celebration-fadeout' : ''}`}>
-        <Trophy className="h-32 w-32 text-[var(--ucl-gold)] ucl-champion-trophy" />
+        <Trophy className="h-36 w-36 text-[var(--ucl-gold)] ucl-champion-trophy" />
         <div className="ucl-champion-text">CHAMPION</div>
         <div className="ucl-champion-name">{championName}</div>
       </div>
@@ -418,6 +608,12 @@ export default function BracketPage() {
   const fetchData = useCallback(async () => {
     // Validate UUID before fetching
     if (!isValidUUID(id)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[BracketPage] UUID validation failed:', {
+          id,
+          expectedFormat: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+        })
+      }
       setError('Invalid tournament ID')
       setLoading(false)
       return
@@ -472,8 +668,10 @@ export default function BracketPage() {
   if (loading) {
     return (
       <div className="min-h-screen ucl-bracket-bg flex items-center justify-center">
+        <div className="ucl-nebula-overlay" />
         <Starfield count={80} />
         <div className="ucl-geometric-pattern" />
+        <div className="ucl-vignette" />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-[var(--ucl-silver)]" />
           <span className="ucl-round-label tracking-widest">LOADING...</span>
@@ -486,8 +684,10 @@ export default function BracketPage() {
   if (error) {
     return (
       <div className="min-h-screen ucl-bracket-bg">
+        <div className="ucl-nebula-overlay" />
         <Starfield count={60} />
         <div className="ucl-geometric-pattern" />
+        <div className="ucl-vignette" />
 
         {/* Header */}
         <header className="ucl-header relative z-10">
@@ -523,9 +723,11 @@ export default function BracketPage() {
   return (
     <div className="min-h-screen ucl-bracket-bg">
       {/* Background Effects */}
-      <Starfield count={120} />
-      <FloatingParticles count={20} />
+      <div className="ucl-nebula-overlay" />
+      <Starfield count={150} />
+      <FloatingParticles count={30} />
       <div className="ucl-geometric-pattern" />
+      <div className="ucl-vignette" />
 
       {/* Header */}
       <header className="ucl-header relative z-10">
@@ -543,15 +745,15 @@ export default function BracketPage() {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-10 relative z-10">
         {/* Title Section */}
-        <div className="mb-10 text-center">
-          <div className="flex items-center justify-center gap-4 mb-3">
-            <Trophy className="h-8 w-8 text-[var(--ucl-gold)]" />
-            <h1 className="ucl-title text-3xl md:text-4xl font-bold tracking-wide">
+        <div className="mb-12 text-center">
+          <div className="flex items-center justify-center gap-5 mb-4">
+            <Trophy className="h-10 w-10 text-[var(--ucl-gold)] ucl-trophy" />
+            <h1 className="ucl-title-xl text-3xl md:text-5xl">
               {tournament?.name}
             </h1>
-            <Trophy className="h-8 w-8 text-[var(--ucl-gold)]" />
+            <Trophy className="h-10 w-10 text-[var(--ucl-gold)] ucl-trophy" />
           </div>
-          <p className="ucl-title-gold text-lg font-semibold tracking-[0.3em] uppercase">
+          <p className="ucl-title-gold text-xl font-semibold tracking-[0.4em] uppercase">
             {tournament?.game}
           </p>
         </div>
@@ -559,7 +761,7 @@ export default function BracketPage() {
         {/* Bracket or Empty State */}
         {matches.length === 0 ? (
           <div className="ucl-empty-state py-20 text-center max-w-lg mx-auto">
-            <Trophy className="h-16 w-16 mx-auto mb-6 text-[var(--ucl-silver)] opacity-50" />
+            <Trophy className="h-20 w-20 mx-auto mb-6 text-[var(--ucl-silver)] opacity-50" />
             <p className="text-[var(--ucl-silver)] text-lg tracking-wide">
               The bracket has not been generated yet
             </p>

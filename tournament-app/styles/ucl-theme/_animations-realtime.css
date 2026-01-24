@@ -1,0 +1,299 @@
+/* ========================================
+   UCL PRESTIGE THEME - Realtime & Champion Animations
+   Match Update & Victory Effects v2.0
+   ======================================== */
+
+/* Match highlight animation */
+@keyframes ucl-match-highlight {
+  0% {
+    box-shadow: 0 0 0 0 var(--ucl-gold-glow);
+    border-color: var(--ucl-glass-border);
+  }
+  25% {
+    box-shadow: 0 0 30px 10px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+  75% {
+    box-shadow: 0 0 30px 10px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+  100% {
+    box-shadow: 0 0 15px 3px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+}
+
+/* Winner reveal animation - ENHANCED with dramatic effect */
+@keyframes ucl-winner-reveal {
+  0% {
+    transform: scale(1);
+    color: var(--ucl-silver-light);
+    text-shadow: none;
+    filter: brightness(1);
+  }
+  15% {
+    transform: scale(1.25);
+    color: #fff;
+    text-shadow: 0 0 30px #fff, 0 0 60px var(--ucl-gold-glow);
+    filter: brightness(1.5);
+  }
+  30% {
+    transform: scale(1.2);
+    color: var(--ucl-gold-bright);
+    text-shadow: 0 0 25px var(--ucl-gold-glow), 0 0 50px var(--ucl-gold-glow), 0 0 80px rgba(255, 215, 0, 0.5);
+    filter: brightness(1.3);
+  }
+  50% {
+    transform: scale(1.15);
+    color: var(--ucl-gold);
+    text-shadow: 0 0 30px var(--ucl-gold-glow), 0 0 60px var(--ucl-gold-glow);
+    filter: brightness(1.2);
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  85% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--ucl-gold);
+    text-shadow: 0 0 12px var(--ucl-gold-glow);
+    filter: brightness(1);
+  }
+}
+
+/* Match card flash when winner is revealed */
+@keyframes ucl-card-winner-flash {
+  0% {
+    background: inherit;
+    box-shadow: inherit;
+  }
+  15% {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 215, 0, 0.2) 100%);
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.5), 0 0 100px var(--ucl-gold-glow);
+  }
+  30% {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  }
+  100% {
+    background: inherit;
+    box-shadow: inherit;
+  }
+}
+
+/* Winner shimmer animation */
+@keyframes ucl-winner-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Loser fade out animation */
+@keyframes ucl-loser-fadeout {
+  0% {
+    opacity: 1;
+    color: var(--ucl-silver-light);
+    text-decoration: none;
+  }
+  50% {
+    opacity: 0.7;
+    color: rgba(192, 192, 192, 0.5);
+  }
+  100% {
+    opacity: 1;
+    color: rgba(192, 192, 192, 0.4);
+    text-decoration: line-through;
+  }
+}
+
+/* Crown bounce animation */
+@keyframes ucl-crown-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateY(-20px) rotate(-30deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3) translateY(5px) rotate(10deg);
+  }
+  70% {
+    transform: scale(0.9) translateY(-3px) rotate(-5deg);
+  }
+  85% {
+    transform: scale(1.1) translateY(2px) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+/* Line flow animation */
+@keyframes ucl-line-flow {
+  0% {
+    stroke-dashoffset: 100;
+    stroke: var(--ucl-line-default);
+  }
+  50% {
+    stroke: var(--ucl-gold);
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke: var(--ucl-gold);
+    filter: drop-shadow(0 0 8px var(--ucl-gold-glow));
+  }
+}
+
+/* Line glow pulse animation */
+@keyframes ucl-line-glow-pulse {
+  0% {
+    filter: drop-shadow(0 0 2px var(--ucl-gold-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px var(--ucl-gold-glow));
+  }
+  100% {
+    filter: drop-shadow(0 0 6px var(--ucl-gold-glow));
+  }
+}
+
+/* Typing animation */
+@keyframes ucl-typing {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* Gold flash animation */
+@keyframes ucl-gold-flash {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Champion reveal animation */
+@keyframes ucl-champion-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(5deg);
+  }
+  70% {
+    transform: scale(0.95) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Champion text animation */
+@keyframes ucl-champion-text {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+    letter-spacing: 0.5em;
+  }
+  50% {
+    opacity: 1;
+    letter-spacing: 0.8em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.3em;
+  }
+}
+
+/* Confetti fall animation */
+@keyframes ucl-confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Firework explode animation */
+@keyframes ucl-firework-explode {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx, 100px), var(--ty, -100px)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Firework trail animation */
+@keyframes ucl-firework-trail {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(var(--start-y, 50vh) * -1));
+    opacity: 0;
+  }
+}
+
+/* Sparkle burst animation */
+@keyframes ucl-sparkle-burst {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* Celebration fadeout animation */
+@keyframes ucl-celebration-fadeout {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

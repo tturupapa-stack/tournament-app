@@ -1,16 +1,22 @@
 'use client'
 
-import { useMemo, useEffect, useRef } from 'react'
-import { Crown, Loader2 } from 'lucide-react'
-import { ANIMATION_TIMING, type AnimatingMatch } from '@/hooks'
+import { useMemo, useEffect, useRef, useState } from 'react'
+import { Loader2, Crown } from 'lucide-react'
+import { type AnimatingMatch } from '@/hooks'
 
 /**
- * Sanitize text to prevent XSS attacks by removing potentially dangerous characters.
+ * Sanitize text to prevent XSS attacks by escaping HTML entities.
  * While JSX auto-escapes content, this provides an additional defense layer for API data.
+ * Escapes: & < > " ' to their HTML entity equivalents.
  */
 const sanitizeText = (text: string): string => {
   if (!text || typeof text !== 'string') return ''
-  return text.replace(/[<>]/g, '')
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
 }
 
 export interface BracketMatch {
@@ -105,25 +111,57 @@ export function TournamentBracket({
   return (
     <div className="relative overflow-x-auto overflow-y-auto py-10 px-6">
       {/* SVG Definitions - defined once for all connector lines */}
-      <svg width="0" height="0" className="absolute">
+      <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
+          {/* Static gold gradient */}
           <linearGradient id="ucl-goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#DAA520" />
             <stop offset="50%" stopColor="#FFD700" />
             <stop offset="100%" stopColor="#DAA520" />
           </linearGradient>
+          {/* Silver gradient for inactive lines */}
           <linearGradient id="ucl-silverGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="rgba(192, 192, 192, 0.2)" />
             <stop offset="50%" stopColor="rgba(192, 192, 192, 0.4)" />
             <stop offset="100%" stopColor="rgba(192, 192, 192, 0.2)" />
           </linearGradient>
+          {/* Animated energy flow gradient */}
+          <linearGradient id="ucl-energyFlowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#DAA520">
+              <animate attributeName="stop-color" values="#DAA520;#FFE55C;#FFD700;#DAA520" dur="2s" repeatCount="indefinite" />
+            </stop>
+            <stop offset="25%" stopColor="#FFD700">
+              <animate attributeName="stop-color" values="#FFD700;#DAA520;#FFE55C;#FFD700" dur="2s" repeatCount="indefinite" />
+            </stop>
+            <stop offset="50%" stopColor="#FFE55C">
+              <animate attributeName="stop-color" values="#FFE55C;#FFD700;#DAA520;#FFE55C" dur="2s" repeatCount="indefinite" />
+            </stop>
+            <stop offset="75%" stopColor="#FFD700">
+              <animate attributeName="stop-color" values="#FFD700;#FFE55C;#FFD700;#DAA520" dur="2s" repeatCount="indefinite" />
+            </stop>
+            <stop offset="100%" stopColor="#DAA520">
+              <animate attributeName="stop-color" values="#DAA520;#FFD700;#FFE55C;#DAA520" dur="2s" repeatCount="indefinite" />
+            </stop>
+          </linearGradient>
+          {/* Gold glow filter */}
           <filter id="ucl-glowGold" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
             <feMerge>
               <feMergeNode in="coloredBlur" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          {/* Intense gold glow for active lines */}
+          <filter id="ucl-glowGoldIntense" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="6" result="blur1" />
+            <feGaussianBlur stdDeviation="2" result="blur2" />
+            <feMerge>
+              <feMergeNode in="blur1" />
+              <feMergeNode in="blur2" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          {/* Silver glow filter */}
           <filter id="ucl-glowSilver" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2" result="coloredBlur" />
             <feMerge>
@@ -218,8 +256,8 @@ export function TournamentBracket({
                       const match2Done = !!match2?.winner_name
                       const bothDone = match1Done && match2Done
 
-                      const defaultStroke = 'url(#ucl-silverGradient)'
-                      const activeStroke = 'url(#ucl-goldGradient)'
+                      const defaultColor = 'rgba(192, 192, 192, 0.4)'
+                      const activeColor = '#FFD700'
 
                       return (
                         <g key={`connector-${matchIndex}`}>
@@ -229,12 +267,10 @@ export function TournamentBracket({
                             y1={CONNECTOR_HEIGHT / 2}
                             x2={x1}
                             y2={CONNECTOR_HEIGHT}
-                            stroke={match1Done ? activeStroke : defaultStroke}
+                            stroke={match1Done ? activeColor : defaultColor}
                             strokeWidth={match1Done ? '2.5' : '2'}
-                            filter={match1Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
-                            className={
-                              match1Done ? 'ucl-connector-active' : 'ucl-connector-default'
-                            }
+                            strokeLinecap="round"
+                            style={match1Done ? { filter: 'drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))' } : undefined}
                           />
                           {/* Right vertical down to match */}
                           <line
@@ -242,12 +278,10 @@ export function TournamentBracket({
                             y1={CONNECTOR_HEIGHT / 2}
                             x2={x2}
                             y2={CONNECTOR_HEIGHT}
-                            stroke={match2Done ? activeStroke : defaultStroke}
+                            stroke={match2Done ? activeColor : defaultColor}
                             strokeWidth={match2Done ? '2.5' : '2'}
-                            filter={match2Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
-                            className={
-                              match2Done ? 'ucl-connector-active' : 'ucl-connector-default'
-                            }
+                            strokeLinecap="round"
+                            style={match2Done ? { filter: 'drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))' } : undefined}
                           />
                           {/* Left horizontal (x1 to xMid) */}
                           <line
@@ -255,12 +289,10 @@ export function TournamentBracket({
                             y1={CONNECTOR_HEIGHT / 2}
                             x2={xMid}
                             y2={CONNECTOR_HEIGHT / 2}
-                            stroke={match1Done ? activeStroke : defaultStroke}
+                            stroke={match1Done ? activeColor : defaultColor}
                             strokeWidth={match1Done ? '2.5' : '2'}
-                            filter={match1Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
-                            className={
-                              match1Done ? 'ucl-connector-active' : 'ucl-connector-default'
-                            }
+                            strokeLinecap="round"
+                            style={match1Done ? { filter: 'drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))' } : undefined}
                           />
                           {/* Right horizontal (xMid to x2) */}
                           <line
@@ -268,12 +300,18 @@ export function TournamentBracket({
                             y1={CONNECTOR_HEIGHT / 2}
                             x2={x2}
                             y2={CONNECTOR_HEIGHT / 2}
-                            stroke={match2Done ? activeStroke : defaultStroke}
+                            stroke={match2Done ? activeColor : defaultColor}
                             strokeWidth={match2Done ? '2.5' : '2'}
-                            filter={match2Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
-                            className={
-                              match2Done ? 'ucl-connector-active' : 'ucl-connector-default'
-                            }
+                            strokeLinecap="round"
+                            style={match2Done ? { filter: 'drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))' } : undefined}
+                          />
+                          {/* Corner glow effect */}
+                          <circle
+                            cx={xMid}
+                            cy={CONNECTOR_HEIGHT / 2}
+                            r={bothDone ? 4 : 3}
+                            fill={bothDone ? activeColor : defaultColor}
+                            style={bothDone ? { filter: 'drop-shadow(0 0 6px rgba(255, 215, 0, 0.9))' } : undefined}
                           />
                           {/* Center vertical up to next round */}
                           <line
@@ -281,10 +319,10 @@ export function TournamentBracket({
                             y1={0}
                             x2={xMid}
                             y2={CONNECTOR_HEIGHT / 2}
-                            stroke={bothDone ? activeStroke : defaultStroke}
+                            stroke={bothDone ? activeColor : defaultColor}
                             strokeWidth={bothDone ? '2.5' : '2'}
-                            filter={bothDone ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
-                            className={bothDone ? 'ucl-connector-active' : 'ucl-connector-default'}
+                            strokeLinecap="round"
+                            style={bothDone ? { filter: 'drop-shadow(0 0 4px rgba(255, 215, 0, 0.8))' } : undefined}
                           />
                         </g>
                       )
@@ -312,6 +350,16 @@ interface MatchCardProps {
   animatingWinnerName?: string
 }
 
+// Explosion particles data type - enhanced with color variety
+interface ExplosionParticle {
+  id: number
+  x: number
+  y: number
+  duration: number
+  color: 'gold' | 'silver' | 'white'
+  size: number
+}
+
 function MatchCard({
   match,
   isAdmin,
@@ -325,6 +373,50 @@ function MatchCard({
 }: MatchCardProps) {
   const isMatchLoading = actionLoading === match.id
   const hasWinner = !!match.winner_name
+  const [showExplosion, setShowExplosion] = useState(false)
+  const [explosionParticles, setExplosionParticles] = useState<ExplosionParticle[]>([])
+  const prevAnimationPhaseRef = useRef(0)
+
+  // Track animation phase changes and trigger explosion effect when winner is revealed
+  // Using ref to track previous phase avoids the synchronous setState issue
+  useEffect(() => {
+    const prevPhase = prevAnimationPhaseRef.current
+    prevAnimationPhaseRef.current = animationPhase
+
+    // Only trigger when crossing the threshold from below 2 to 2 or above
+    if (isAnimating && animatingWinnerName && animationPhase >= 2 && prevPhase < 2) {
+      // Use requestAnimationFrame to defer state update out of effect body
+      requestAnimationFrame(() => {
+        setShowExplosion(true)
+        // Generate random explosion particles - ENHANCED: 24 particles with color variety
+        const colors: Array<'gold' | 'silver' | 'white'> = ['gold', 'silver', 'white']
+        const particles = Array.from({ length: 24 }, (_, i) => {
+          const angle = (i / 24) * Math.PI * 2
+          const distance = 40 + Math.random() * 80
+          return {
+            id: i,
+            x: Math.cos(angle) * distance + (Math.random() - 0.5) * 30,
+            y: Math.sin(angle) * distance * 0.7 - 20 + (Math.random() - 0.5) * 20,
+            duration: 0.5 + Math.random() * 0.5,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            size: 3 + Math.random() * 4,
+          }
+        })
+        setExplosionParticles(particles)
+      })
+    }
+  }, [isAnimating, animationPhase, animatingWinnerName])
+
+  // Separate effect for cleanup timer
+  useEffect(() => {
+    if (showExplosion) {
+      const timer = setTimeout(() => {
+        setShowExplosion(false)
+        setExplosionParticles([])
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [showExplosion])
 
   const handleTeamClick = (teamName: string) => {
     if (isAdmin && !hasWinner && !isMatchLoading && onSetWinner && teamName !== 'TBD') {
@@ -334,7 +426,7 @@ function MatchCard({
 
   const getTeamClassName = (teamName: string, isWinner: boolean) => {
     const baseClass =
-      'text-sm transition-all duration-300 select-none whitespace-nowrap tracking-wide'
+      'text-sm transition-all duration-300 select-none whitespace-nowrap tracking-wide font-medium'
 
     // During animation, apply special animation classes
     if (isAnimating && animatingWinnerName) {
@@ -374,21 +466,42 @@ function MatchCard({
 
   const getCrownClassName = (teamName: string) => {
     if (isAnimating && animatingWinnerName === teamName && animationPhase >= 4) {
-      return 'h-4 w-4 ucl-crown ucl-crown-bounce'
+      return 'ucl-crown ucl-crown-bounce'
     }
-    return 'h-4 w-4 ucl-crown'
+    return 'ucl-crown'
   }
 
   return (
     <div
       className={`
-        flex items-center justify-center gap-3
+        relative flex items-center justify-center gap-3
         ${isLastRound ? 'ucl-match-card ucl-match-card-finals' : 'ucl-match-card'}
         ${isLastRound ? 'text-base py-4 px-5' : 'text-sm py-3 px-4'}
         ${isAnimating && animationPhase >= 1 ? 'ucl-match-highlight' : ''}
       `}
       style={{ width: `${width}px` }}
     >
+      {/* Explosion particles - ENHANCED with color variety */}
+      {showExplosion && (
+        <div className="ucl-explosion-container">
+          {explosionParticles.map((particle) => (
+            <div
+              key={particle.id}
+              className={`ucl-explosion-particle ucl-explosion-particle-${particle.color}`}
+              style={{
+                left: '50%',
+                top: '50%',
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+                '--x': `${particle.x}px`,
+                '--y': `${particle.y}px`,
+                '--duration': `${particle.duration}s`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Team 1 */}
       <div
         role={isAdmin && !hasWinner && match.team1_name !== 'TBD' ? 'button' : undefined}
@@ -408,7 +521,10 @@ function MatchCard({
         }}
       >
         {shouldShowCrown(match.team1_name) && (
-          <Crown className={getCrownClassName(match.team1_name)} aria-hidden="true" />
+          <Crown
+            className={`h-4 w-4 ${getCrownClassName(match.team1_name)}`}
+            aria-hidden="true"
+          />
         )}
         <span>{sanitizeText(match.team1_name)}</span>
         {isMatchLoading && (
@@ -439,7 +555,10 @@ function MatchCard({
       >
         <span>{sanitizeText(match.team2_name)}</span>
         {shouldShowCrown(match.team2_name) && (
-          <Crown className={getCrownClassName(match.team2_name)} aria-hidden="true" />
+          <Crown
+            className={`h-4 w-4 ${getCrownClassName(match.team2_name)}`}
+            aria-hidden="true"
+          />
         )}
         {isMatchLoading && (
           <Loader2 className="h-3 w-3 animate-spin text-[var(--ucl-silver)]" aria-hidden="true" />

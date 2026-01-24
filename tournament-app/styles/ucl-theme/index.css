@@ -1,0 +1,14 @@
+/* ========================================
+   UCL PRESTIGE THEME - Main Entry Point
+   Champions League Style v2.0
+   ======================================== */
+
+/* Import all theme modules */
+@import "./_variables.css";
+@import "./_animations-base.css";
+@import "./_animations-realtime.css";
+@import "./_backgrounds.css";
+@import "./_typography.css";
+@import "./_components.css";
+@import "./_celebration.css";
+@import "./_accessibility.css";

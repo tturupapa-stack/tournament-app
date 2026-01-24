@@ -1,0 +1,159 @@
+/* ========================================
+   UCL PRESTIGE THEME - Accessibility
+   Reduced Motion & A11y Support v2.0
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all UCL animations */
+  .ucl-star,
+  .ucl-star-large,
+  .ucl-star-gold,
+  .ucl-shooting-star,
+  .ucl-particle,
+  .ucl-particle-sparkle,
+  .ucl-nebula-overlay,
+  .ucl-bracket-bg,
+  .ucl-match-card,
+  .ucl-match-card-finals,
+  .ucl-title-gold,
+  .ucl-team-name-winner,
+  .ucl-crown,
+  .ucl-connector-default,
+  .ucl-connector-active,
+  .ucl-connector-energy-dot,
+  .ucl-explosion-particle,
+  .ucl-firework {
+    animation: none !important;
+  }
+
+  /* Hide shooting stars entirely */
+  .ucl-shooting-star {
+    display: none !important;
+  }
+
+  /* Disable match highlight animation */
+  .ucl-match-highlight {
+    animation: none !important;
+    border-color: var(--ucl-gold) !important;
+    box-shadow: 0 0 15px 3px var(--ucl-gold-glow) !important;
+  }
+
+  /* Disable winner reveal animation - show final state immediately */
+  .ucl-winner-reveal {
+    animation: none !important;
+    color: var(--ucl-gold) !important;
+    text-shadow: 0 0 10px var(--ucl-gold-glow) !important;
+    transform: none !important;
+  }
+
+  /* Disable shimmer effect */
+  .ucl-winner-shimmer {
+    animation: none !important;
+    background: var(--ucl-gold) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: var(--ucl-gold) !important;
+  }
+
+  /* Disable loser fadeout animation - show final state immediately */
+  .ucl-loser-fadeout {
+    animation: none !important;
+    opacity: 1 !important;
+    color: rgba(192, 192, 192, 0.4) !important;
+    text-decoration: line-through !important;
+  }
+
+  /* Disable crown bounce animation */
+  .ucl-crown-bounce {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable line flow animation */
+  .ucl-line-flow,
+  .ucl-line-glow-active {
+    animation: none !important;
+  }
+
+  /* Disable typing effect */
+  .ucl-typing-effect {
+    animation: none !important;
+    width: 100% !important;
+    opacity: 1 !important;
+  }
+
+  /* Disable champion celebration animations */
+  .ucl-gold-flash-overlay {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .ucl-champion-trophy,
+  .ucl-champion-text,
+  .ucl-champion-name {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable confetti */
+  .ucl-confetti {
+    animation: none !important;
+    display: none !important;
+  }
+
+  .ucl-celebration-fadeout {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  /* Reduce all transitions */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ucl-team-name {
+    color: white;
+  }
+
+  .ucl-team-name-winner {
+    color: #FFD700 !important;
+    text-shadow: none;
+  }
+
+  .ucl-team-name-loser {
+    color: #888888;
+  }
+
+  .ucl-match-card {
+    border-width: 2px;
+  }
+}
+
+/* Focus visible styles for keyboard navigation */
+.ucl-match-card [role="button"]:focus-visible {
+  outline: 2px solid var(--ucl-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Screen reader only class */
+.ucl-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

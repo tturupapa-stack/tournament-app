@@ -175,10 +175,20 @@ export function useRealtimeSubscription({
     }
   }, [clearPolling, clearReconnectTimeout])
 
+  // Ref to hold the connect function for self-referencing in callbacks
+  const connectRef = useRef<() => void>(() => {})
+
   const connect = useCallback(() => {
     // Validate UUID before connecting
     if (!isValidUUID(tournamentId)) {
-      setError('Invalid tournament ID format')
+      const errorMessage = 'Invalid tournament ID format'
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[useRealtimeSubscription] UUID validation failed:`, {
+          tournamentId,
+          expectedFormat: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+        })
+      }
+      setError(errorMessage)
       updateStatus('error')
       return
     }
@@ -227,7 +237,7 @@ export function useRealtimeSubscription({
             console.log(`Attempting reconnection in ${delay}ms (attempt ${reconnectAttemptsRef.current})`)
 
             reconnectTimeoutRef.current = setTimeout(() => {
-              connect()
+              connectRef.current()
             }, delay)
           } else {
             console.log('Max reconnection attempts reached, falling back to polling')
@@ -244,6 +254,11 @@ export function useRealtimeSubscription({
     channelRef.current = channel
   }, [tournamentId, cleanup, updateStatus, clearPolling, startPollingFallback])
 
+  // Keep connectRef updated
+  useEffect(() => {
+    connectRef.current = connect
+  }, [connect])
+
   const reconnect = useCallback(() => {
     reconnectAttemptsRef.current = 0
     connect()
@@ -259,22 +274,30 @@ export function useRealtimeSubscription({
     if (!tournamentId) return
 
     let fallbackTimeout: NodeJS.Timeout | null = null
+    let isCleanedUp = false
 
-    connect()
+    // Use requestAnimationFrame to defer connect call out of effect body
+    const frameId = requestAnimationFrame(() => {
+      if (!isCleanedUp) {
+        connectRef.current()
+      }
+    })
 
     // Start polling fallback after timeout if realtime doesn't connect
     fallbackTimeout = setTimeout(() => {
-      if (statusRef.current !== 'connected') {
+      if (!isCleanedUp && statusRef.current !== 'connected') {
         console.log('Realtime connection timeout, starting polling fallback')
         startPollingFallback()
       }
     }, 5000)
 
     return () => {
+      isCleanedUp = true
+      cancelAnimationFrame(frameId)
       if (fallbackTimeout) clearTimeout(fallbackTimeout)
       cleanup()
     }
-  }, [tournamentId, connect, cleanup, startPollingFallback])
+  }, [tournamentId, cleanup, startPollingFallback])
 
   return {
     status,
