@@ -1,7 +1,17 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { Crown, Loader2 } from 'lucide-react'
+import { ANIMATION_TIMING, type AnimatingMatch } from '@/hooks'
+
+/**
+ * Sanitize text to prevent XSS attacks by removing potentially dangerous characters.
+ * While JSX auto-escapes content, this provides an additional defense layer for API data.
+ */
+const sanitizeText = (text: string): string => {
+  if (!text || typeof text !== 'string') return ''
+  return text.replace(/[<>]/g, '')
+}
 
 export interface BracketMatch {
   id: string
@@ -12,52 +22,80 @@ export interface BracketMatch {
   winner_name: string | null
 }
 
+// Re-export for backwards compatibility
+export type { AnimatingMatch }
+
 interface TournamentBracketProps {
   matches: BracketMatch[]
   isAdmin?: boolean
   onSetWinner?: (matchId: string, winnerName: string) => void
   actionLoading?: string | null
+  animatingMatch?: AnimatingMatch | null
+  animationPhase?: number
+  onAnimationComplete?: () => void
 }
 
 // Bracket layout constants
-const MATCH_WIDTH = 200
-const BASE_GAP = 40
-const CONNECTOR_HEIGHT = 40
-const ROUND_GAP = 20
+const MATCH_WIDTH = 220
+const BASE_GAP = 50
+const CONNECTOR_HEIGHT = 50
 
 export function TournamentBracket({
   matches,
   isAdmin = false,
   onSetWinner,
-  actionLoading
+  actionLoading,
+  animatingMatch,
+  animationPhase = 0,
+  onAnimationComplete,
 }: TournamentBracketProps) {
+  // Track previous animating match for cleanup
+  const prevAnimatingMatchRef = useRef<string | null>(null)
+  const onAnimationCompleteRef = useRef(onAnimationComplete)
+
+  // Keep callback ref updated
+  useEffect(() => {
+    onAnimationCompleteRef.current = onAnimationComplete
+  }, [onAnimationComplete])
+
+  // Notify when animation completes (when animatingMatch changes from something to null)
+  useEffect(() => {
+    if (prevAnimatingMatchRef.current && !animatingMatch) {
+      onAnimationCompleteRef.current?.()
+    }
+    prevAnimatingMatchRef.current = animatingMatch?.matchId ?? null
+  }, [animatingMatch])
+
   // Group matches by round with memoization
   const { matchesByRound, rounds, totalRounds } = useMemo(() => {
-    const grouped = matches.reduce((acc, match) => {
-      if (!acc[match.round]) {
-        acc[match.round] = []
-      }
-      acc[match.round].push(match)
-      return acc
-    }, {} as Record<number, BracketMatch[]>)
+    const grouped = matches.reduce(
+      (acc, match) => {
+        if (!acc[match.round]) {
+          acc[match.round] = []
+        }
+        acc[match.round].push(match)
+        return acc
+      },
+      {} as Record<number, BracketMatch[]>
+    )
 
     const roundKeys = Object.keys(grouped).map(Number).sort()
 
     return {
       matchesByRound: grouped,
       rounds: roundKeys,
-      totalRounds: roundKeys.length
+      totalRounds: roundKeys.length,
     }
   }, [matches])
 
   // Get round label
   const getRoundLabel = (roundIndex: number, isLastRound: boolean) => {
-    if (isLastRound) return '🏆 결승'
+    if (isLastRound) return 'FINAL'
     const roundsFromEnd = totalRounds - 1 - roundIndex
-    if (roundsFromEnd === 1) return '준결승'
-    if (roundsFromEnd === 2) return '8강'
-    if (roundsFromEnd === 3) return '16강'
-    return `${roundIndex + 1}라운드`
+    if (roundsFromEnd === 1) return 'SEMI-FINALS'
+    if (roundsFromEnd === 2) return 'QUARTER-FINALS'
+    if (roundsFromEnd === 3) return 'ROUND OF 16'
+    return `ROUND ${roundIndex + 1}`
   }
 
   // Calculate total width needed for first round (most matches)
@@ -65,10 +103,40 @@ export function TournamentBracket({
   const totalWidth = firstRoundMatches * MATCH_WIDTH + (firstRoundMatches - 1) * BASE_GAP
 
   return (
-    <div className="relative overflow-x-auto overflow-y-auto py-8">
+    <div className="relative overflow-x-auto overflow-y-auto py-10 px-6">
+      {/* SVG Definitions - defined once for all connector lines */}
+      <svg width="0" height="0" className="absolute">
+        <defs>
+          <linearGradient id="ucl-goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#DAA520" />
+            <stop offset="50%" stopColor="#FFD700" />
+            <stop offset="100%" stopColor="#DAA520" />
+          </linearGradient>
+          <linearGradient id="ucl-silverGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(192, 192, 192, 0.2)" />
+            <stop offset="50%" stopColor="rgba(192, 192, 192, 0.4)" />
+            <stop offset="100%" stopColor="rgba(192, 192, 192, 0.2)" />
+          </linearGradient>
+          <filter id="ucl-glowGold" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <filter id="ucl-glowSilver" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
       <div
         className="flex flex-col items-center mx-auto"
-        style={{ width: `${Math.max(totalWidth + 100, 500)}px` }}
+        style={{ width: `${Math.max(totalWidth + 120, 600)}px` }}
       >
         {/* Render from top (finals) to bottom (first round) */}
         {[...rounds].reverse().map((round, reverseIndex) => {
@@ -82,19 +150,21 @@ export function TournamentBracket({
           return (
             <div key={round} className="relative w-full flex flex-col items-center">
               {/* Round Label */}
-              <div className="text-center mb-1">
-                <span className={`text-xs font-medium ${isLastRound ? 'text-yellow-500' : 'text-muted-foreground'}`}>
+              <div className="text-center mb-3">
+                <span
+                  className={`
+                    font-semibold tracking-[0.2em] text-xs
+                    ${isLastRound ? 'ucl-round-label-finals text-sm' : 'ucl-round-label'}
+                  `}
+                >
                   {getRoundLabel(roundIndex, isLastRound)}
                 </span>
               </div>
 
               {/* Matches */}
-              <div
-                className="flex justify-center items-center"
-                style={{ gap: `${gap}px` }}
-              >
+              <div className="flex justify-center items-center" style={{ gap: `${gap}px` }}>
                 {matchesInRound.map((match) => (
-                  <MatchRow
+                  <MatchCard
                     key={match.id}
                     match={match}
                     isAdmin={isAdmin}
@@ -102,6 +172,11 @@ export function TournamentBracket({
                     actionLoading={actionLoading}
                     isLastRound={isLastRound}
                     width={MATCH_WIDTH}
+                    isAnimating={animatingMatch?.matchId === match.id}
+                    animationPhase={animatingMatch?.matchId === match.id ? animationPhase : 0}
+                    animatingWinnerName={
+                      animatingMatch?.matchId === match.id ? animatingMatch.winnerName : undefined
+                    }
                   />
                 ))}
               </div>
@@ -112,6 +187,7 @@ export function TournamentBracket({
                   className="w-full pointer-events-none"
                   style={{ height: `${CONNECTOR_HEIGHT}px` }}
                   preserveAspectRatio="none"
+                  aria-hidden="true"
                 >
                   {(() => {
                     // Get the matches from the round below (more matches)
@@ -119,7 +195,8 @@ export function TournamentBracket({
                     const belowRound = rounds[belowRoundIndex]
                     const belowMatches = matchesByRound[belowRound] || []
                     const belowSpacingMultiplier = Math.pow(2, belowRoundIndex)
-                    const belowGap = BASE_GAP * belowSpacingMultiplier + MATCH_WIDTH * (belowSpacingMultiplier - 1)
+                    const belowGap =
+                      BASE_GAP * belowSpacingMultiplier + MATCH_WIDTH * (belowSpacingMultiplier - 1)
 
                     return belowMatches.map((_, matchIndex) => {
                       if (matchIndex % 2 === 1) return null
@@ -129,7 +206,7 @@ export function TournamentBracket({
 
                       // Calculate center positions for below round
                       const totalRowWidth = matchCount * MATCH_WIDTH + (matchCount - 1) * belowGap
-                      const startX = (totalWidth - totalRowWidth) / 2 + 50
+                      const startX = (totalWidth - totalRowWidth) / 2 + 60
 
                       const x1 = startX + matchIndex * matchPlusGap + MATCH_WIDTH / 2
                       const x2 = startX + (matchIndex + 1) * matchPlusGap + MATCH_WIDTH / 2
@@ -141,21 +218,74 @@ export function TournamentBracket({
                       const match2Done = !!match2?.winner_name
                       const bothDone = match1Done && match2Done
 
-                      const defaultStroke = 'stroke-muted-foreground/30'
-                      const activeStroke = 'stroke-green-500'
+                      const defaultStroke = 'url(#ucl-silverGradient)'
+                      const activeStroke = 'url(#ucl-goldGradient)'
 
                       return (
                         <g key={`connector-${matchIndex}`}>
                           {/* Left vertical down to match */}
-                          <line x1={x1} y1={CONNECTOR_HEIGHT / 2} x2={x1} y2={CONNECTOR_HEIGHT} className={match1Done ? activeStroke : defaultStroke} strokeWidth="2" />
+                          <line
+                            x1={x1}
+                            y1={CONNECTOR_HEIGHT / 2}
+                            x2={x1}
+                            y2={CONNECTOR_HEIGHT}
+                            stroke={match1Done ? activeStroke : defaultStroke}
+                            strokeWidth={match1Done ? '2.5' : '2'}
+                            filter={match1Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
+                            className={
+                              match1Done ? 'ucl-connector-active' : 'ucl-connector-default'
+                            }
+                          />
                           {/* Right vertical down to match */}
-                          <line x1={x2} y1={CONNECTOR_HEIGHT / 2} x2={x2} y2={CONNECTOR_HEIGHT} className={match2Done ? activeStroke : defaultStroke} strokeWidth="2" />
+                          <line
+                            x1={x2}
+                            y1={CONNECTOR_HEIGHT / 2}
+                            x2={x2}
+                            y2={CONNECTOR_HEIGHT}
+                            stroke={match2Done ? activeStroke : defaultStroke}
+                            strokeWidth={match2Done ? '2.5' : '2'}
+                            filter={match2Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
+                            className={
+                              match2Done ? 'ucl-connector-active' : 'ucl-connector-default'
+                            }
+                          />
                           {/* Left horizontal (x1 to xMid) */}
-                          <line x1={x1} y1={CONNECTOR_HEIGHT / 2} x2={xMid} y2={CONNECTOR_HEIGHT / 2} className={match1Done ? activeStroke : defaultStroke} strokeWidth="2" />
+                          <line
+                            x1={x1}
+                            y1={CONNECTOR_HEIGHT / 2}
+                            x2={xMid}
+                            y2={CONNECTOR_HEIGHT / 2}
+                            stroke={match1Done ? activeStroke : defaultStroke}
+                            strokeWidth={match1Done ? '2.5' : '2'}
+                            filter={match1Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
+                            className={
+                              match1Done ? 'ucl-connector-active' : 'ucl-connector-default'
+                            }
+                          />
                           {/* Right horizontal (xMid to x2) */}
-                          <line x1={xMid} y1={CONNECTOR_HEIGHT / 2} x2={x2} y2={CONNECTOR_HEIGHT / 2} className={match2Done ? activeStroke : defaultStroke} strokeWidth="2" />
+                          <line
+                            x1={xMid}
+                            y1={CONNECTOR_HEIGHT / 2}
+                            x2={x2}
+                            y2={CONNECTOR_HEIGHT / 2}
+                            stroke={match2Done ? activeStroke : defaultStroke}
+                            strokeWidth={match2Done ? '2.5' : '2'}
+                            filter={match2Done ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
+                            className={
+                              match2Done ? 'ucl-connector-active' : 'ucl-connector-default'
+                            }
+                          />
                           {/* Center vertical up to next round */}
-                          <line x1={xMid} y1={0} x2={xMid} y2={CONNECTOR_HEIGHT / 2} className={bothDone ? activeStroke : defaultStroke} strokeWidth="2" />
+                          <line
+                            x1={xMid}
+                            y1={0}
+                            x2={xMid}
+                            y2={CONNECTOR_HEIGHT / 2}
+                            stroke={bothDone ? activeStroke : defaultStroke}
+                            strokeWidth={bothDone ? '2.5' : '2'}
+                            filter={bothDone ? 'url(#ucl-glowGold)' : 'url(#ucl-glowSilver)'}
+                            className={bothDone ? 'ucl-connector-active' : 'ucl-connector-default'}
+                          />
                         </g>
                       )
                     })
@@ -170,16 +300,29 @@ export function TournamentBracket({
   )
 }
 
-interface MatchRowProps {
+interface MatchCardProps {
   match: BracketMatch
   isAdmin: boolean
   onSetWinner?: (matchId: string, winnerName: string) => void
   actionLoading?: string | null
   isLastRound: boolean
   width: number
+  isAnimating?: boolean
+  animationPhase?: number
+  animatingWinnerName?: string
 }
 
-function MatchRow({ match, isAdmin, onSetWinner, actionLoading, isLastRound, width }: MatchRowProps) {
+function MatchCard({
+  match,
+  isAdmin,
+  onSetWinner,
+  actionLoading,
+  isLastRound,
+  width,
+  isAnimating = false,
+  animationPhase = 0,
+  animatingWinnerName,
+}: MatchCardProps) {
   const isMatchLoading = actionLoading === match.id
   const hasWinner = !!match.winner_name
 
@@ -189,34 +332,73 @@ function MatchRow({ match, isAdmin, onSetWinner, actionLoading, isLastRound, wid
     }
   }
 
-  const getTeamStyle = (teamName: string, isWinner: boolean) => {
-    const baseStyle = "text-sm transition-all duration-200 select-none whitespace-nowrap"
+  const getTeamClassName = (teamName: string, isWinner: boolean) => {
+    const baseClass =
+      'text-sm transition-all duration-300 select-none whitespace-nowrap tracking-wide'
+
+    // During animation, apply special animation classes
+    if (isAnimating && animatingWinnerName) {
+      const isAnimatingWinner = teamName === animatingWinnerName
+      const isAnimatingLoser = !isAnimatingWinner && teamName !== 'TBD'
+
+      if (isAnimatingWinner && animationPhase >= 2) {
+        return `${baseClass} ucl-winner-reveal ${animationPhase >= 2 ? 'ucl-winner-shimmer' : ''}`
+      }
+      if (isAnimatingLoser && animationPhase >= 3) {
+        return `${baseClass} ucl-loser-fadeout`
+      }
+    }
 
     if (isWinner) {
-      return `${baseStyle} text-green-500 font-bold`
+      return `${baseClass} ucl-team-name-winner`
     }
     if (hasWinner && !isWinner) {
-      return `${baseStyle} text-muted-foreground/40 line-through`
+      return `${baseClass} ucl-team-name-loser`
     }
     if (teamName === 'TBD') {
-      return `${baseStyle} text-muted-foreground/30 italic`
+      return `${baseClass} ucl-team-name-tbd`
     }
     if (isAdmin) {
-      return `${baseStyle} text-foreground hover:text-primary cursor-pointer`
+      return `${baseClass} ucl-team-name hover:text-white cursor-pointer`
     }
-    return `${baseStyle} text-foreground`
+    return `${baseClass} ucl-team-name`
+  }
+
+  // Check if crown should be shown with animation
+  const shouldShowCrown = (teamName: string) => {
+    if (isAnimating && animatingWinnerName === teamName && animationPhase >= 4) {
+      return true
+    }
+    return match.winner_name === teamName && !isAnimating
+  }
+
+  const getCrownClassName = (teamName: string) => {
+    if (isAnimating && animatingWinnerName === teamName && animationPhase >= 4) {
+      return 'h-4 w-4 ucl-crown ucl-crown-bounce'
+    }
+    return 'h-4 w-4 ucl-crown'
   }
 
   return (
     <div
-      className={`flex items-center justify-center gap-2 ${isLastRound ? 'text-base' : 'text-sm'}`}
+      className={`
+        flex items-center justify-center gap-3
+        ${isLastRound ? 'ucl-match-card ucl-match-card-finals' : 'ucl-match-card'}
+        ${isLastRound ? 'text-base py-4 px-5' : 'text-sm py-3 px-4'}
+        ${isAnimating && animationPhase >= 1 ? 'ucl-match-highlight' : ''}
+      `}
       style={{ width: `${width}px` }}
     >
       {/* Team 1 */}
       <div
-        role={isAdmin && !hasWinner ? "button" : undefined}
-        tabIndex={isAdmin && !hasWinner && match.team1_name !== 'TBD' ? 0 : -1}
-        className={`flex items-center gap-1 ${getTeamStyle(match.team1_name, match.winner_name === match.team1_name)}`}
+        role={isAdmin && !hasWinner && match.team1_name !== 'TBD' ? 'button' : undefined}
+        tabIndex={isAdmin && !hasWinner && match.team1_name !== 'TBD' ? 0 : undefined}
+        aria-label={
+          isAdmin && !hasWinner && match.team1_name !== 'TBD'
+            ? `Select ${match.team1_name} as winner`
+            : undefined
+        }
+        className={`flex items-center gap-2 ${getTeamClassName(match.team1_name, match.winner_name === match.team1_name)}`}
         onClick={() => handleTeamClick(match.team1_name)}
         onKeyDown={(e) => {
           if ((e.key === 'Enter' || e.key === ' ') && match.team1_name !== 'TBD') {
@@ -225,19 +407,28 @@ function MatchRow({ match, isAdmin, onSetWinner, actionLoading, isLastRound, wid
           }
         }}
       >
-        {match.winner_name === match.team1_name && <Crown className="h-3 w-3 text-yellow-500" />}
-        {match.team1_name}
-        {isMatchLoading && <Loader2 className="h-3 w-3 animate-spin" />}
+        {shouldShowCrown(match.team1_name) && (
+          <Crown className={getCrownClassName(match.team1_name)} aria-hidden="true" />
+        )}
+        <span>{sanitizeText(match.team1_name)}</span>
+        {isMatchLoading && (
+          <Loader2 className="h-3 w-3 animate-spin text-[var(--ucl-silver)]" aria-hidden="true" />
+        )}
       </div>
 
-      {/* VS */}
-      <span className="text-[10px] text-muted-foreground/50 font-medium">vs</span>
+      {/* VS Separator */}
+      <span className="ucl-vs text-xs font-medium px-1">VS</span>
 
       {/* Team 2 */}
       <div
-        role={isAdmin && !hasWinner ? "button" : undefined}
-        tabIndex={isAdmin && !hasWinner && match.team2_name !== 'TBD' ? 0 : -1}
-        className={`flex items-center gap-1 ${getTeamStyle(match.team2_name, match.winner_name === match.team2_name)}`}
+        role={isAdmin && !hasWinner && match.team2_name !== 'TBD' ? 'button' : undefined}
+        tabIndex={isAdmin && !hasWinner && match.team2_name !== 'TBD' ? 0 : undefined}
+        aria-label={
+          isAdmin && !hasWinner && match.team2_name !== 'TBD'
+            ? `Select ${match.team2_name} as winner`
+            : undefined
+        }
+        className={`flex items-center gap-2 ${getTeamClassName(match.team2_name, match.winner_name === match.team2_name)}`}
         onClick={() => handleTeamClick(match.team2_name)}
         onKeyDown={(e) => {
           if ((e.key === 'Enter' || e.key === ' ') && match.team2_name !== 'TBD') {
@@ -246,9 +437,13 @@ function MatchRow({ match, isAdmin, onSetWinner, actionLoading, isLastRound, wid
           }
         }}
       >
-        {match.team2_name}
-        {match.winner_name === match.team2_name && <Crown className="h-3 w-3 text-yellow-500" />}
-        {isMatchLoading && <Loader2 className="h-3 w-3 animate-spin" />}
+        <span>{sanitizeText(match.team2_name)}</span>
+        {shouldShowCrown(match.team2_name) && (
+          <Crown className={getCrownClassName(match.team2_name)} aria-hidden="true" />
+        )}
+        {isMatchLoading && (
+          <Loader2 className="h-3 w-3 animate-spin text-[var(--ucl-silver)]" aria-hidden="true" />
+        )}
       </div>
     </div>
   )

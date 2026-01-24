@@ -93,3 +93,877 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ========================================
+   UCL PRESTIGE THEME - Champions League Style
+   ======================================== */
+
+/* UCL Theme Color Variables */
+:root {
+  /* Primary Colors - Midnight Blue Gradient */
+  --ucl-dark-blue: #000428;
+  --ucl-navy: #004e92;
+  --ucl-deep-blue: #001d3d;
+
+  /* Accent Colors - Premium Metallic */
+  --ucl-gold: #FFD700;
+  --ucl-gold-dark: #DAA520;
+  --ucl-gold-glow: rgba(255, 215, 0, 0.6);
+  --ucl-silver: #C0C0C0;
+  --ucl-silver-light: #E8E8E8;
+  --ucl-silver-glow: rgba(192, 192, 192, 0.5);
+
+  /* Glass Effect */
+  --ucl-glass-bg: rgba(255, 255, 255, 0.05);
+  --ucl-glass-border: rgba(192, 192, 192, 0.3);
+  --ucl-glass-highlight: rgba(255, 255, 255, 0.1);
+
+  /* Line Effects */
+  --ucl-line-default: rgba(192, 192, 192, 0.3);
+  --ucl-line-active: var(--ucl-gold);
+  --ucl-line-glow: rgba(255, 215, 0, 0.4);
+}
+
+/* ========================================
+   UCL ANIMATIONS - Keyframes
+   ======================================== */
+
+/* Starfield Twinkle Animation */
+@keyframes ucl-twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Subtle Background Shift */
+@keyframes ucl-gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Line Pulse/Glow Animation */
+@keyframes ucl-line-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px var(--ucl-silver-glow));
+    opacity: 0.6;
+  }
+  50% {
+    filter: drop-shadow(0 0 6px var(--ucl-silver-glow));
+    opacity: 1;
+  }
+}
+
+/* Winner Line Glow Animation */
+@keyframes ucl-winner-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px var(--ucl-gold-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px var(--ucl-gold-glow));
+  }
+}
+
+/* Card Hover Glow */
+@keyframes ucl-card-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(192, 192, 192, 0.2);
+  }
+}
+
+/* Winner Celebration Pulse */
+@keyframes ucl-celebration {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 5px var(--ucl-gold-glow);
+  }
+  50% {
+    transform: scale(1.02);
+    text-shadow: 0 0 15px var(--ucl-gold-glow), 0 0 30px var(--ucl-gold-glow);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 5px var(--ucl-gold-glow);
+  }
+}
+
+/* Crown Float Animation */
+@keyframes ucl-crown-float {
+  0%, 100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(5deg);
+  }
+}
+
+/* Particle Float */
+@keyframes ucl-particle-float {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Shimmer Effect for Text */
+@keyframes ucl-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* ========================================
+   UCL COMPONENT STYLES
+   ======================================== */
+
+/* UCL Bracket Container Background */
+.ucl-bracket-bg {
+  background: linear-gradient(135deg, var(--ucl-dark-blue) 0%, var(--ucl-navy) 50%, var(--ucl-deep-blue) 100%);
+  background-size: 200% 200%;
+  animation: ucl-gradient-shift 15s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Starfield Overlay */
+.ucl-starfield {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ucl-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: ucl-twinkle var(--duration, 3s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Geometric Pattern Overlay */
+.ucl-geometric-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(30deg, transparent 49.5%, rgba(192, 192, 192, 0.03) 49.5%, rgba(192, 192, 192, 0.03) 50.5%, transparent 50.5%),
+    linear-gradient(150deg, transparent 49.5%, rgba(192, 192, 192, 0.03) 49.5%, rgba(192, 192, 192, 0.03) 50.5%, transparent 50.5%);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* Glass Card Effect */
+.ucl-glass-card {
+  background: var(--ucl-glass-bg);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--ucl-glass-border);
+  border-radius: 12px;
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 var(--ucl-glass-highlight);
+  transition: all 0.3s ease;
+}
+
+.ucl-glass-card:hover {
+  border-color: var(--ucl-silver);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px var(--ucl-silver-glow),
+    inset 0 1px 0 var(--ucl-glass-highlight);
+  transform: translateY(-2px);
+}
+
+/* UCL Match Card */
+.ucl-match-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--ucl-glass-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ucl-match-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.ucl-match-card:hover::before {
+  left: 100%;
+}
+
+.ucl-match-card:hover {
+  border-color: var(--ucl-silver-light);
+  box-shadow:
+    0 0 25px rgba(192, 192, 192, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: scale(1.02);
+}
+
+/* Finals Match Card - Extra Premium */
+.ucl-match-card-finals {
+  border-color: var(--ucl-gold-dark);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(218, 165, 32, 0.1) 100%
+  );
+  animation: ucl-card-glow 3s ease-in-out infinite;
+}
+
+.ucl-match-card-finals:hover {
+  border-color: var(--ucl-gold);
+  box-shadow:
+    0 0 30px var(--ucl-gold-glow),
+    inset 0 1px 0 rgba(255, 215, 0, 0.2);
+}
+
+/* UCL Typography */
+.ucl-title {
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.05em;
+}
+
+.ucl-title-gold {
+  background: linear-gradient(90deg, var(--ucl-gold), var(--ucl-silver-light), var(--ucl-gold));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ucl-shimmer 3s linear infinite;
+}
+
+/* Team Name Styles */
+.ucl-team-name {
+  color: var(--ucl-silver-light);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.3s ease;
+}
+
+.ucl-team-name-winner {
+  color: var(--ucl-gold) !important;
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--ucl-gold-glow);
+  animation: ucl-celebration 2s ease-in-out infinite;
+}
+
+.ucl-team-name-loser {
+  color: rgba(192, 192, 192, 0.4);
+  text-decoration: line-through;
+}
+
+.ucl-team-name-tbd {
+  color: rgba(192, 192, 192, 0.3);
+  font-style: italic;
+}
+
+/* Crown Icon Animation */
+.ucl-crown {
+  color: var(--ucl-gold);
+  filter: drop-shadow(0 0 5px var(--ucl-gold-glow));
+  animation: ucl-crown-float 2s ease-in-out infinite;
+}
+
+/* VS Separator */
+.ucl-vs {
+  color: rgba(192, 192, 192, 0.5);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Round Labels */
+.ucl-round-label {
+  color: var(--ucl-silver);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.ucl-round-label-finals {
+  color: var(--ucl-gold);
+  text-shadow: 0 0 15px var(--ucl-gold-glow);
+}
+
+/* Connector Line Styles */
+.ucl-connector-default {
+  stroke: var(--ucl-line-default);
+  stroke-width: 2;
+  animation: ucl-line-pulse 3s ease-in-out infinite;
+}
+
+.ucl-connector-active {
+  stroke: var(--ucl-gold);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 4px var(--ucl-gold-glow));
+  animation: ucl-winner-glow 2s ease-in-out infinite;
+}
+
+/* Header Styles */
+.ucl-header {
+  background: linear-gradient(180deg, rgba(0, 4, 40, 0.9) 0%, transparent 100%);
+  border-bottom: 1px solid var(--ucl-glass-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Back Link */
+.ucl-back-link {
+  color: var(--ucl-silver);
+  transition: all 0.3s ease;
+}
+
+.ucl-back-link:hover {
+  color: white;
+  text-shadow: 0 0 10px var(--ucl-silver-glow);
+}
+
+/* Empty State */
+.ucl-empty-state {
+  background: var(--ucl-glass-bg);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--ucl-glass-border);
+  border-radius: 16px;
+}
+
+/* Loading State */
+.ucl-loading {
+  color: var(--ucl-silver);
+}
+
+/* Error State */
+.ucl-error-card {
+  background: rgba(220, 38, 38, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 16px;
+}
+
+/* Floating Particles Container */
+.ucl-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ucl-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--ucl-gold);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ucl-particle-float var(--duration, 15s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* ========================================
+   REALTIME UPDATE ANIMATIONS
+   ======================================== */
+
+/* Match Highlight Pulse - Step 1 */
+@keyframes ucl-match-highlight {
+  0% {
+    box-shadow: 0 0 0 0 var(--ucl-gold-glow);
+    border-color: var(--ucl-glass-border);
+  }
+  25% {
+    box-shadow: 0 0 30px 10px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+  75% {
+    box-shadow: 0 0 30px 10px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+  100% {
+    box-shadow: 0 0 15px 3px var(--ucl-gold-glow);
+    border-color: var(--ucl-gold);
+  }
+}
+
+.ucl-match-highlight {
+  animation: ucl-match-highlight 1.5s ease-out forwards;
+  border-color: var(--ucl-gold) !important;
+}
+
+/* Winner Reveal Animation - Step 2 */
+@keyframes ucl-winner-reveal {
+  0% {
+    transform: scale(1);
+    color: var(--ucl-silver-light);
+    text-shadow: none;
+  }
+  30% {
+    transform: scale(1.15);
+    color: var(--ucl-gold);
+    text-shadow: 0 0 20px var(--ucl-gold-glow), 0 0 40px var(--ucl-gold-glow);
+  }
+  60% {
+    transform: scale(1.1);
+    color: var(--ucl-gold);
+    text-shadow: 0 0 25px var(--ucl-gold-glow), 0 0 50px var(--ucl-gold-glow);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--ucl-gold);
+    text-shadow: 0 0 10px var(--ucl-gold-glow);
+  }
+}
+
+.ucl-winner-reveal {
+  animation: ucl-winner-reveal 0.8s ease-out forwards;
+  display: inline-block;
+}
+
+/* Winner Shimmer Effect */
+@keyframes ucl-winner-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.ucl-winner-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--ucl-gold) 0%,
+    #fff5cc 25%,
+    var(--ucl-gold) 50%,
+    #fff5cc 75%,
+    var(--ucl-gold) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ucl-winner-shimmer 2s linear infinite;
+}
+
+/* Loser Fade Out - Step 3 */
+@keyframes ucl-loser-fadeout {
+  0% {
+    opacity: 1;
+    color: var(--ucl-silver-light);
+    text-decoration: none;
+  }
+  50% {
+    opacity: 0.7;
+    color: rgba(192, 192, 192, 0.5);
+  }
+  100% {
+    opacity: 1;
+    color: rgba(192, 192, 192, 0.4);
+    text-decoration: line-through;
+  }
+}
+
+.ucl-loser-fadeout {
+  animation: ucl-loser-fadeout 0.6s ease-out forwards;
+}
+
+/* Crown Bounce Animation - Step 4 */
+@keyframes ucl-crown-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateY(-20px) rotate(-30deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3) translateY(5px) rotate(10deg);
+  }
+  70% {
+    transform: scale(0.9) translateY(-3px) rotate(-5deg);
+  }
+  85% {
+    transform: scale(1.1) translateY(2px) rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+.ucl-crown-bounce {
+  animation: ucl-crown-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* Line Flow Animation - Step 5 */
+@keyframes ucl-line-flow {
+  0% {
+    stroke-dashoffset: 100;
+    stroke: var(--ucl-line-default);
+  }
+  50% {
+    stroke: var(--ucl-gold);
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke: var(--ucl-gold);
+    filter: drop-shadow(0 0 8px var(--ucl-gold-glow));
+  }
+}
+
+.ucl-line-flow {
+  stroke-dasharray: 100;
+  animation: ucl-line-flow 0.8s ease-out forwards;
+}
+
+/* Line Glow Pulse */
+@keyframes ucl-line-glow-pulse {
+  0% {
+    filter: drop-shadow(0 0 2px var(--ucl-gold-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px var(--ucl-gold-glow));
+  }
+  100% {
+    filter: drop-shadow(0 0 6px var(--ucl-gold-glow));
+  }
+}
+
+.ucl-line-glow-active {
+  animation: ucl-line-glow-pulse 1s ease-out;
+}
+
+/* Typing Effect for Next Round - Step 6 */
+@keyframes ucl-typing {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.ucl-typing-effect {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: ucl-typing 0.5s steps(20, end) forwards;
+  display: inline-block;
+}
+
+/* ========================================
+   CHAMPION CELEBRATION EFFECTS
+   ======================================== */
+
+/* Full Screen Gold Flash */
+@keyframes ucl-gold-flash {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.ucl-gold-flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, var(--ucl-gold) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 100;
+  animation: ucl-gold-flash 1s ease-out forwards;
+}
+
+/* Champion Reveal */
+@keyframes ucl-champion-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(5deg);
+  }
+  70% {
+    transform: scale(0.95) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.ucl-champion-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 101;
+  pointer-events: none;
+}
+
+.ucl-champion-trophy {
+  animation: ucl-champion-reveal 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  filter: drop-shadow(0 0 30px var(--ucl-gold-glow));
+}
+
+/* Champion Text */
+@keyframes ucl-champion-text {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+    letter-spacing: 0.5em;
+  }
+  50% {
+    opacity: 1;
+    letter-spacing: 0.8em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.3em;
+  }
+}
+
+.ucl-champion-text {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--ucl-gold);
+  text-shadow: 0 0 30px var(--ucl-gold-glow), 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: ucl-champion-text 1s ease-out 0.5s forwards;
+  opacity: 0;
+}
+
+.ucl-champion-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 20px var(--ucl-gold-glow), 0 2px 10px rgba(0, 0, 0, 0.5);
+  animation: ucl-champion-text 0.8s ease-out 1s forwards;
+  opacity: 0;
+  margin-top: 1rem;
+}
+
+/* Confetti Animation */
+@keyframes ucl-confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.ucl-confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  overflow: hidden;
+}
+
+.ucl-confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -20px;
+  animation: ucl-confetti-fall var(--duration, 3s) linear forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.ucl-confetti-gold {
+  background: var(--ucl-gold);
+  box-shadow: 0 0 6px var(--ucl-gold-glow);
+}
+
+.ucl-confetti-silver {
+  background: var(--ucl-silver);
+  box-shadow: 0 0 4px var(--ucl-silver-glow);
+}
+
+.ucl-confetti-white {
+  background: white;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+/* Celebration Fade Out */
+@keyframes ucl-celebration-fadeout {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.ucl-celebration-fadeout {
+  animation: ucl-celebration-fadeout 0.5s ease-out forwards;
+}
+
+/* ========================================
+   ACCESSIBILITY - Reduced Motion Support
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all UCL animations */
+  .ucl-star,
+  .ucl-particle,
+  .ucl-bracket-bg,
+  .ucl-match-card,
+  .ucl-match-card-finals,
+  .ucl-title-gold,
+  .ucl-team-name-winner,
+  .ucl-crown,
+  .ucl-connector-default,
+  .ucl-connector-active {
+    animation: none !important;
+  }
+
+  /* Disable match highlight animation */
+  .ucl-match-highlight {
+    animation: none !important;
+    border-color: var(--ucl-gold) !important;
+    box-shadow: 0 0 15px 3px var(--ucl-gold-glow) !important;
+  }
+
+  /* Disable winner reveal animation - show final state immediately */
+  .ucl-winner-reveal {
+    animation: none !important;
+    color: var(--ucl-gold) !important;
+    text-shadow: 0 0 10px var(--ucl-gold-glow) !important;
+    transform: none !important;
+  }
+
+  /* Disable shimmer effect */
+  .ucl-winner-shimmer {
+    animation: none !important;
+    background: var(--ucl-gold) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: var(--ucl-gold) !important;
+  }
+
+  /* Disable loser fadeout animation - show final state immediately */
+  .ucl-loser-fadeout {
+    animation: none !important;
+    opacity: 1 !important;
+    color: rgba(192, 192, 192, 0.4) !important;
+    text-decoration: line-through !important;
+  }
+
+  /* Disable crown bounce animation */
+  .ucl-crown-bounce {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable line flow animation */
+  .ucl-line-flow,
+  .ucl-line-glow-active {
+    animation: none !important;
+  }
+
+  /* Disable typing effect */
+  .ucl-typing-effect {
+    animation: none !important;
+    width: 100% !important;
+    opacity: 1 !important;
+  }
+
+  /* Disable champion celebration animations */
+  .ucl-gold-flash-overlay {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .ucl-champion-trophy,
+  .ucl-champion-text,
+  .ucl-champion-name {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Disable confetti */
+  .ucl-confetti {
+    animation: none !important;
+    display: none !important;
+  }
+
+  .ucl-celebration-fadeout {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  /* Reduce all transitions */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
