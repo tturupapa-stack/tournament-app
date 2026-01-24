@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { addParticipant } from '@/lib/services/tournament'
+import { addParticipant, updateParticipantSkill } from '@/lib/services/tournament'
 import { createClient } from '@/lib/supabase/server'
 import { SKILLS } from '@/lib/constants'
 
@@ -50,6 +50,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result.participant, { status: 201 })
   } catch (error) {
     console.error('POST /api/participants error:', error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  }
+}
+
+// PUT /api/participants - Update participant skill level
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { id, skill } = body
+
+    // Validate required fields
+    if (!id || !skill) {
+      return NextResponse.json(
+        { error: 'id와 skill이 필요합니다' },
+        { status: 400 }
+      )
+    }
+
+    // Validate skill level
+    const skillValue = SKILLS[skill]
+    if (!skillValue) {
+      return NextResponse.json(
+        { error: '유효하지 않은 실력 레벨입니다. 가능한 값: 루키, 비기너, 아마추어, 세미프로, 프로' },
+        { status: 400 }
+      )
+    }
+
+    // Update participant skill using service layer
+    const result = await updateParticipantSkill(id, skill, skillValue)
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: result.errorCode || 400 })
+    }
+
+    return NextResponse.json(result.participant, { status: 200 })
+  } catch (error) {
+    console.error('PUT /api/participants error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

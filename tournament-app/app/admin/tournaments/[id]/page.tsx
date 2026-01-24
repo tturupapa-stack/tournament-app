@@ -24,6 +24,13 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { toast } from 'sonner'
 import {
   ArrowLeft,
@@ -37,6 +44,7 @@ import {
   Settings,
   Swords
 } from 'lucide-react'
+import { SKILLS } from '@/lib/constants'
 
 interface Tournament {
   id: string
@@ -90,6 +98,7 @@ export default function AdminTournamentPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [updatingSkill, setUpdatingSkill] = useState<string | null>(null)
 
   useEffect(() => {
     fetchTournament()
@@ -173,6 +182,27 @@ export default function AdminTournamentPage() {
       fetchTournament()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : '참가자 삭제에 실패했습니다')
+    }
+  }
+
+  async function handleUpdateSkill(participantId: string, newSkill: string) {
+    setUpdatingSkill(participantId)
+    try {
+      const res = await fetch('/api/participants', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: participantId, skill: newSkill })
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || '레벨 변경에 실패했습니다')
+      }
+      toast.success('실력 레벨이 변경되었습니다')
+      fetchTournament()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '레벨 변경에 실패했습니다')
+    } finally {
+      setUpdatingSkill(null)
     }
   }
 
@@ -335,7 +365,30 @@ export default function AdminTournamentPage() {
                             <TableCell className="font-medium">{index + 1}</TableCell>
                             <TableCell>{participant.nickname}</TableCell>
                             <TableCell>
-                              <Badge variant="outline">{participant.skill}</Badge>
+                              {isOpen ? (
+                                <Select
+                                  value={participant.skill}
+                                  onValueChange={(value) => handleUpdateSkill(participant.id, value)}
+                                  disabled={updatingSkill === participant.id}
+                                >
+                                  <SelectTrigger size="sm" className="w-[120px]">
+                                    {updatingSkill === participant.id ? (
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                      <SelectValue />
+                                    )}
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.keys(SKILLS).map((skillName) => (
+                                      <SelectItem key={skillName} value={skillName}>
+                                        {skillName}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Badge variant="outline">{participant.skill}</Badge>
+                              )}
                             </TableCell>
                             {isOpen && (
                               <TableCell className="text-right">

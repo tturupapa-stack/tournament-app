@@ -260,6 +260,48 @@ export async function deleteParticipant(id: string): Promise<void> {
   if (error) throw error
 }
 
+export async function updateParticipantSkill(
+  id: string,
+  skill: string,
+  skillValue: number
+): Promise<{ success: boolean; error?: string; errorCode?: number; participant?: Participant }> {
+  const supabase = await createClient()
+
+  // Check if participant exists and get tournament info
+  const { data: existing, error: fetchError } = await supabase
+    .from('participants')
+    .select('*, tournament:tournaments(status)')
+    .eq('id', id)
+    .single()
+
+  if (fetchError || !existing) {
+    return { success: false, error: '참가자를 찾을 수 없습니다.', errorCode: 404 }
+  }
+
+  // Check tournament status - only allow updates for open tournaments
+  const tournament = existing.tournament as { status: string } | null
+  if (tournament?.status === 'closed') {
+    return { success: false, error: '마감된 대회의 참가자 레벨은 변경할 수 없습니다.', errorCode: 400 }
+  }
+
+  // Update participant skill
+  const { data: participant, error: updateError } = await supabase
+    .from('participants')
+    .update({
+      skill,
+      skill_value: skillValue
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (updateError) {
+    return { success: false, error: '실력 레벨 업데이트에 실패했습니다.', errorCode: 500 }
+  }
+
+  return { success: true, participant }
+}
+
 // ===== Team Management =====
 
 export async function closeTournamentAndCreateTeams(tournamentId: string): Promise<{
