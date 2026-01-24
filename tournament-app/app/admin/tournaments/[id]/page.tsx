@@ -25,12 +25,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 import {
   ArrowLeft,
@@ -366,26 +365,33 @@ export default function AdminTournamentPage() {
                             <TableCell>{participant.nickname}</TableCell>
                             <TableCell>
                               {isOpen ? (
-                                <Select
-                                  value={participant.skill}
-                                  onValueChange={(value) => handleUpdateSkill(participant.id, value)}
-                                  disabled={updatingSkill === participant.id}
-                                >
-                                  <SelectTrigger size="sm" className="w-[120px]">
-                                    {updatingSkill === participant.id ? (
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <SelectValue />
-                                    )}
-                                  </SelectTrigger>
-                                  <SelectContent>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild disabled={updatingSkill === participant.id}>
+                                    <button className="cursor-pointer">
+                                      {updatingSkill === participant.id ? (
+                                        <Badge variant="outline" className="gap-1">
+                                          <Loader2 className="h-3 w-3 animate-spin" />
+                                          {participant.skill}
+                                        </Badge>
+                                      ) : (
+                                        <Badge variant="outline" className="hover:bg-muted">
+                                          {participant.skill}
+                                        </Badge>
+                                      )}
+                                    </button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="start">
                                     {Object.keys(SKILLS).map((skillName) => (
-                                      <SelectItem key={skillName} value={skillName}>
+                                      <DropdownMenuItem
+                                        key={skillName}
+                                        onClick={() => handleUpdateSkill(participant.id, skillName)}
+                                        className={participant.skill === skillName ? 'bg-muted' : ''}
+                                      >
                                         {skillName}
-                                      </SelectItem>
+                                      </DropdownMenuItem>
                                     ))}
-                                  </SelectContent>
-                                </Select>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               ) : (
                                 <Badge variant="outline">{participant.skill}</Badge>
                               )}
