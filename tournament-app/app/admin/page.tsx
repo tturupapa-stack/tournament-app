@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>모집중</CardDescription>
-              <CardTitle className="text-3xl text-green-500">{openCount}</CardTitle>
+              <CardTitle className="text-3xl">{openCount}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
@@ -192,8 +192,8 @@ export default function AdminDashboardPage() {
                       </TableCell>
                       <TableCell>
                         <Badge
+                          className={tournament.status === 'open' ? 'bg-green-500 hover:bg-green-500/90' : ''}
                           variant={tournament.status === 'open' ? 'default' : 'secondary'}
-                          className={tournament.status === 'open' ? 'bg-green-500' : ''}
                         >
                           {tournament.status === 'open' ? '모집중' : '마감'}
                         </Badge>

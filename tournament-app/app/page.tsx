@@ -50,14 +50,14 @@ export default async function HomePage() {
         {openTournaments.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center gap-2 mb-6">
-              <Badge variant="default" className="bg-green-500">모집중</Badge>
+              <Badge className="bg-green-500 hover:bg-green-500/90">모집중</Badge>
               <h2 className="text-xl font-semibold">참가 신청 가능한 대회</h2>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {openTournaments.map((tournament) => (
                 <Link key={tournament.id} href={`/tournament/${tournament.id}`}>
-                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-green-500/20 hover:border-green-500/50">
+                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -67,7 +67,7 @@ export default async function HomePage() {
                             {tournament.game}
                           </CardDescription>
                         </div>
-                        <Badge variant="outline" className="text-green-500 border-green-500">
+                        <Badge className="bg-green-500 hover:bg-green-500/90">
                           모집중
                         </Badge>
                       </div>
@@ -107,7 +107,7 @@ export default async function HomePage() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {closedTournaments.map((tournament) => (
                 <Link key={tournament.id} href={`/tournament/${tournament.id}`}>
-                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer opacity-80 hover:opacity-100">
+                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer opacity-80 hover:opacity-100">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>

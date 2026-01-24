@@ -268,7 +268,7 @@ export default function AdminTournamentPage() {
                 <Calendar className="h-4 w-4" />
                 {tournament.deadline}
               </span>
-              <Badge variant={isOpen ? 'default' : 'secondary'} className={isOpen ? 'bg-green-500' : ''}>
+              <Badge className={isOpen ? 'bg-green-500 hover:bg-green-500/90' : ''} variant={isOpen ? 'default' : 'secondary'}>
                 {isOpen ? '모집중' : '마감'}
               </Badge>
             </div>

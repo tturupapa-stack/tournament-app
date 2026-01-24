@@ -81,20 +81,20 @@ function LoginForm() {
 export default function AdminLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md border-pixel-magenta">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 border-4 border-pixel-magenta flex items-center justify-center mb-4 shadow-[4px_4px_0px_rgba(255,0,255,0.3)] bg-pixel-navy">
-            <Lock className="h-8 w-8 text-pixel-magenta animate-pulse" />
+          <div className="mx-auto w-16 h-16 rounded-lg border flex items-center justify-center mb-4 bg-muted">
+            <Lock className="h-8 w-8" />
           </div>
-          <CardTitle className="text-lg font-sans text-pixel-magenta tracking-wider">
-            🔐 관리자 로그인
+          <CardTitle className="text-xl">
+            관리자 로그인
           </CardTitle>
-          <CardDescription className="text-xs font-mono text-pixel-cyan mt-2">
+          <CardDescription className="text-sm mt-2">
             대회 관리를 위해 비밀번호를 입력해주세요
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<div className="h-24 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-pixel-green" /></div>}>
+          <Suspense fallback={<div className="h-24 flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
             <LoginForm />
           </Suspense>
         </CardContent>

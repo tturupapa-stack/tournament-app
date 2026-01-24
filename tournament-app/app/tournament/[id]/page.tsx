@@ -157,8 +157,8 @@ export default function TournamentDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-pixel-green mx-auto mb-4" />
-          <p className="text-xs font-mono text-pixel-cyan">Loading...</p>
+          <Loader2 className="h-10 w-10 animate-spin text-muted-foreground mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
     )
@@ -175,53 +175,53 @@ export default function TournamentDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b-4 border-primary bg-pixel-navy shadow-[0_4px_0px_rgba(0,255,0,0.3)]">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-mono text-pixel-cyan hover:text-pixel-green transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            ← 대회 목록으로
+            대회 목록으로
           </Link>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
         {/* Tournament Info */}
-        <div className="mb-8 border-4 border-primary p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.5)] pixel-dots">
+        <div className="mb-8 rounded-lg border p-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-xl font-sans text-primary flex items-center gap-3 tracking-wider">
-                <Trophy className="h-8 w-8 animate-pulse" />
+              <h1 className="text-2xl font-bold flex items-center gap-3">
+                <Trophy className="h-8 w-8" />
                 {tournament.name}
               </h1>
-              <p className="text-pixel-cyan flex items-center gap-2 mt-2 font-mono text-xs">
+              <p className="text-muted-foreground flex items-center gap-2 mt-2 text-sm">
                 <GamepadIcon className="h-4 w-4" />
                 {tournament.game}
               </p>
             </div>
             <Badge
+              className={isOpen ? 'bg-green-500 hover:bg-green-500/90' : ''}
               variant={isOpen ? 'default' : 'secondary'}
-              className={isOpen ? 'bg-pixel-green border-pixel-green text-pixel-dark animate-pulse' : 'bg-pixel-cyan border-pixel-cyan text-pixel-dark'}
             >
-              {isOpen ? '▶ 모집중' : '■ 마감'}
+              {isOpen ? '모집중' : '마감'}
             </Badge>
           </div>
 
-          <div className="flex flex-wrap gap-4 text-xs font-mono text-muted-foreground mt-4">
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-4">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-pixel-cyan" />
+              <Users className="h-4 w-4" />
               <span>{participantCount} / {tournament.max_participants}명</span>
             </div>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-pixel-magenta" />
+              <Calendar className="h-4 w-4" />
               <span>마감: {tournament.deadline}</span>
             </div>
           </div>
 
           {tournament.description && (
-            <p className="mt-4 text-[10px] font-mono text-pixel-yellow/80 whitespace-pre-line border-t-2 border-primary/30 pt-4">
+            <p className="mt-4 text-sm text-muted-foreground whitespace-pre-line border-t pt-4">
               {tournament.description}
             </p>
           )}
