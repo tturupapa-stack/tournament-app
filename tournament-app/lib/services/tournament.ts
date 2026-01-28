@@ -9,7 +9,7 @@ import type {
   BracketMatch
 } from '@/types/database'
 import { createBalancedTeams } from '@/lib/utils/team-balancing'
-import { JOKER_PARTICIPANT } from '@/lib/constants'
+import { JOKER_PARTICIPANT, SKILLS } from '@/lib/constants'
 
 // ===== Tournament CRUD =====
 
@@ -323,6 +323,18 @@ export async function closeTournamentAndCreateTeams(tournamentId: string): Promi
 
   if (!participants || participants.length < 1) {
     return { success: false, error: '참가자가 없습니다.' }
+  }
+
+  // skill_value를 현재 SKILLS 상수에 맞게 동기화 (레벨 체계 변경 대응)
+  for (const p of participants) {
+    const currentValue = SKILLS[p.skill]
+    if (currentValue && currentValue !== p.skill_value) {
+      p.skill_value = currentValue
+      await supabase
+        .from('participants')
+        .update({ skill_value: currentValue })
+        .eq('id', p.id)
+    }
   }
 
   // Create balanced teams
