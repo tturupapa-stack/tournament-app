@@ -39,6 +39,7 @@ interface TournamentBracketProps {
   animatingMatch?: AnimatingMatch | null
   animationPhase?: number
   onAnimationComplete?: () => void
+  teamSkills?: Record<string, number>
 }
 
 // Bracket layout constants
@@ -54,6 +55,7 @@ export function TournamentBracket({
   animatingMatch,
   animationPhase = 0,
   onAnimationComplete,
+  teamSkills,
 }: TournamentBracketProps) {
   // Track previous animating match for cleanup
   const prevAnimatingMatchRef = useRef<string | null>(null)
@@ -215,6 +217,7 @@ export function TournamentBracket({
                     animatingWinnerName={
                       animatingMatch?.matchId === match.id ? animatingMatch.winnerName : undefined
                     }
+                    teamSkills={teamSkills}
                   />
                 ))}
               </div>
@@ -348,6 +351,7 @@ interface MatchCardProps {
   isAnimating?: boolean
   animationPhase?: number
   animatingWinnerName?: string
+  teamSkills?: Record<string, number>
 }
 
 // Explosion particles data type - enhanced with color variety
@@ -370,6 +374,7 @@ function MatchCard({
   isAnimating = false,
   animationPhase = 0,
   animatingWinnerName,
+  teamSkills,
 }: MatchCardProps) {
   const isMatchLoading = actionLoading === match.id
   const hasWinner = !!match.winner_name
@@ -527,6 +532,9 @@ function MatchCard({
           />
         )}
         <span>{sanitizeText(match.team1_name)}</span>
+        {teamSkills && match.team1_name !== 'TBD' && match.team1_name !== 'BYE' && teamSkills[match.team1_name] !== undefined && (
+          <span className="text-[10px] opacity-60 font-normal">{teamSkills[match.team1_name].toFixed(1)}</span>
+        )}
         {isMatchLoading && (
           <Loader2 className="h-3 w-3 animate-spin text-[var(--ucl-silver)]" aria-hidden="true" />
         )}
@@ -554,6 +562,9 @@ function MatchCard({
         }}
       >
         <span>{sanitizeText(match.team2_name)}</span>
+        {teamSkills && match.team2_name !== 'TBD' && match.team2_name !== 'BYE' && teamSkills[match.team2_name] !== undefined && (
+          <span className="text-[10px] opacity-60 font-normal">{teamSkills[match.team2_name].toFixed(1)}</span>
+        )}
         {shouldShowCrown(match.team2_name) && (
           <Crown
             className={`h-4 w-4 ${getCrownClassName(match.team2_name)}`}

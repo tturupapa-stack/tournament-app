@@ -366,7 +366,7 @@ export default function TournamentDetailPage() {
                           {team.has_joker && <Badge variant="outline">조커</Badge>}
                         </CardTitle>
                         <CardDescription>
-                          평균 실력: {team.avg_skill.toFixed(1)}
+                          {team.team_members?.length || 0}명
                         </CardDescription>
                       </CardHeader>
                       <CardContent>

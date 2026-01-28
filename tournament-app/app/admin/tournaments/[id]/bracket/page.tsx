@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
@@ -13,6 +13,7 @@ interface Tournament {
   id: string
   name: string
   game: string
+  teams?: { name: string; avg_skill: number }[]
 }
 
 export default function AdminBracketPage() {
@@ -24,6 +25,15 @@ export default function AdminBracketPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const teamSkills = useMemo(() => {
+    if (!tournament?.teams) return undefined
+    const map: Record<string, number> = {}
+    for (const team of tournament.teams) {
+      map[team.name] = team.avg_skill
+    }
+    return map
+  }, [tournament])
 
   const fetchData = useCallback(async () => {
     setError(null)
@@ -189,6 +199,7 @@ export default function AdminBracketPage() {
             isAdmin={true}
             onSetWinner={handleSetWinner}
             actionLoading={actionLoading}
+            teamSkills={teamSkills}
           />
         )}
       </main>
