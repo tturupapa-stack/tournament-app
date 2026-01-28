@@ -70,6 +70,7 @@ export function createBalancedTeams(participants: Participant[]): TeamWithMember
 function findOptimalPairing(participants: Participant[]): [Participant, Participant][] {
   let bestPairing: [Participant, Participant][] = []
   let bestDiff = Infinity
+  let bestVariance = Infinity
 
   function generatePairings(
     remaining: Participant[],
@@ -82,8 +83,13 @@ function findOptimalPairing(participants: Participant[]): [Participant, Particip
       const minAvg = Math.min(...avgSkills)
       const diff = maxAvg - minAvg
 
-      if (diff < bestDiff) {
+      // 1차: max-min 차이 최소화, 2차: 분산 최소화 (더 균등한 분배 선호)
+      const mean = avgSkills.reduce((s, v) => s + v, 0) / avgSkills.length
+      const variance = avgSkills.reduce((s, v) => s + (v - mean) ** 2, 0) / avgSkills.length
+
+      if (diff < bestDiff || (diff === bestDiff && variance < bestVariance)) {
         bestDiff = diff
+        bestVariance = variance
         bestPairing = current.map(pair => [...pair] as [Participant, Participant])
       }
       return
