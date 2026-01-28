@@ -511,11 +511,16 @@ export async function generateBracket(tournamentId: string): Promise<{
     .delete()
     .eq('tournament_id', tournamentId)
 
-  // Shuffle teams randomly
-  const shuffledTeams = [...teams].sort(() => Math.random() - 0.5)
+  // Seed teams by avg_skill (descending) - similar skill teams play in round 1
+  // Stable sort: teams with same avg_skill are ordered by name
+  const seededTeams = [...teams].sort((a, b) => {
+    const diff = b.avg_skill - a.avg_skill
+    if (diff !== 0) return diff
+    return a.name.localeCompare(b.name)
+  })
 
   // Calculate total rounds needed
-  const teamCount = shuffledTeams.length
+  const teamCount = seededTeams.length
   const totalRounds = Math.ceil(Math.log2(teamCount))
 
   // Create bracket matches for all rounds
@@ -524,8 +529,8 @@ export async function generateBracket(tournamentId: string): Promise<{
   // Round 1 - actual team matchups
   let matchesInRound = Math.ceil(teamCount / 2)
   for (let i = 0; i < matchesInRound; i++) {
-    const team1 = shuffledTeams[i * 2]
-    const team2 = shuffledTeams[i * 2 + 1]
+    const team1 = seededTeams[i * 2]
+    const team2 = seededTeams[i * 2 + 1]
 
     const { data: match, error } = await supabase
       .from('bracket_matches')
