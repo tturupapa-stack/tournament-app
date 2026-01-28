@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS participants (
   tournament_id UUID REFERENCES tournaments(id) ON DELETE CASCADE,
   nickname VARCHAR(20) NOT NULL,
   skill VARCHAR(10) NOT NULL,
-  skill_value INTEGER NOT NULL CHECK (skill_value BETWEEN 1 AND 5),
+  skill_value NUMERIC(3,1) NOT NULL CHECK (skill_value BETWEEN 1.0 AND 5.0),
   card_tier VARCHAR(10) DEFAULT '브론즈',
   profile_image_url TEXT,
   card_image_url TEXT,

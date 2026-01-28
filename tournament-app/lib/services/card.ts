@@ -172,8 +172,8 @@ function getCardTemplatePath(tier: string): string {
  * Get skill value as a visual number (reverse: lower skill_value = higher display number)
  */
 function getSkillDisplayValue(skillValue: number): number {
-  // 7단계: 루키(1)->50, 비기너(2)->57, 아마추어1(3)->63, 아마추어2(4)->70, 아마추어3(5)->77, 세미프로(6)->83, 프로(7)->90
-  const displayMap: Record<number, number> = { 1: 50, 2: 57, 3: 63, 4: 70, 5: 77, 6: 83, 7: 90 }
+  // 소수 스킬값 → 카드 레이팅 변환
+  const displayMap: Record<number, number> = { 1.0: 50, 2.0: 60, 2.6: 65, 3.2: 70, 3.8: 75, 4.4: 83, 5.0: 90 }
   return displayMap[skillValue] ?? 70
 }
 

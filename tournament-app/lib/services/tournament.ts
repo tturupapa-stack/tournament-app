@@ -380,6 +380,9 @@ export async function closeTournamentAndCreateTeams(tournamentId: string): Promi
           .select()
           .single()
 
+        if (jokerError) {
+          console.error('Joker participant insert error:', jokerError)
+        }
         if (!jokerError && jokerParticipant) {
           await supabase
             .from('team_members')
