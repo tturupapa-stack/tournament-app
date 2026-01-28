@@ -78,7 +78,7 @@ async function removeBackgroundWithGemini(imageBuffer: Buffer, apiKey: string): 
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash-exp',
       generationConfig: {
-        // @ts-ignore - responseModalities is a valid option for image generation
+        // @ts-expect-error - responseModalities is a valid option for image generation
         responseModalities: ['image', 'text'],
       },
     })
@@ -105,9 +105,7 @@ Output a PNG image with transparent background.`
 
     // Find image part in response
     for (const part of parts) {
-      // @ts-ignore - inlineData may contain image
       if (part.inlineData?.data) {
-        // @ts-ignore
         const imageData = part.inlineData.data
         return Buffer.from(imageData, 'base64')
       }
@@ -174,8 +172,9 @@ function getCardTemplatePath(tier: string): string {
  * Get skill value as a visual number (reverse: lower skill_value = higher display number)
  */
 function getSkillDisplayValue(skillValue: number): number {
-  // Convert: 루키(1) -> 50, 비기너(2) -> 60, 아마추어(3) -> 70, 세미프로(4) -> 80, 프로(5) -> 90
-  return 40 + (skillValue * 10)
+  // 7단계: 루키(1)->50, 비기너(2)->57, 아마추어1(3)->63, 아마추어2(4)->70, 아마추어3(5)->77, 세미프로(6)->83, 프로(7)->90
+  const displayMap: Record<number, number> = { 1: 50, 2: 57, 3: 63, 4: 70, 5: 77, 6: 83, 7: 90 }
+  return displayMap[skillValue] ?? 70
 }
 
 /**
@@ -322,7 +321,7 @@ async function compositeWithGemini(
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.0-flash-exp',
       generationConfig: {
-        // @ts-ignore - responseModalities is a valid option for image generation
+        // @ts-expect-error - responseModalities is a valid option for image generation
         responseModalities: ['image', 'text'],
       },
     })
@@ -354,9 +353,7 @@ async function compositeWithGemini(
     const parts = response.candidates?.[0]?.content?.parts || []
 
     for (const part of parts) {
-      // @ts-ignore
       if (part.inlineData?.data) {
-        // @ts-ignore
         const imageData = part.inlineData.data
         console.log('Gemini returned composited image')
 

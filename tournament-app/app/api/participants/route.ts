@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest) {
     const skillValue = SKILLS[skill]
     if (!skillValue) {
       return NextResponse.json(
-        { error: '유효하지 않은 실력 레벨입니다. 가능한 값: 루키, 비기너, 아마추어, 세미프로, 프로' },
+        { error: '유효하지 않은 실력 레벨입니다. 가능한 값: 루키, 비기너, 아마추어 1, 아마추어 2, 아마추어 3, 세미프로, 프로' },
         { status: 400 }
       )
     }

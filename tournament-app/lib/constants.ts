@@ -2,18 +2,22 @@
 export const SKILLS: Record<string, number> = {
   "루키": 1,
   "비기너": 2,
-  "아마추어": 3,
-  "세미프로": 4,
-  "프로": 5
+  "아마추어 1": 3,
+  "아마추어 2": 4,
+  "아마추어 3": 5,
+  "세미프로": 6,
+  "프로": 7
 }
 
 // 실력 레벨 역방향 맵핑
 export const SKILL_LABELS: Record<number, string> = {
   1: "루키",
   2: "비기너",
-  3: "아마추어",
-  4: "세미프로",
-  5: "프로"
+  3: "아마추어 1",
+  4: "아마추어 2",
+  5: "아마추어 3",
+  6: "세미프로",
+  7: "프로"
 }
 
 // 카드 등급 순서 (업그레이드 경로)
@@ -53,6 +57,6 @@ export const PAGE_CONFIG = {
 export const JOKER_PARTICIPANT = {
   nickname: "조커 (관리자)",
   skill: "세미프로",
-  skill_value: 4,
+  skill_value: 6,
   is_joker: true
 } as const
