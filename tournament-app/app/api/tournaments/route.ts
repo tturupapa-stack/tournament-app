@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('tournaments')
-      .select('*')
+      .select('*, participants(count)')
       .order('created_at', { ascending: false })
 
     if (status) {
