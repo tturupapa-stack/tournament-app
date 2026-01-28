@@ -373,7 +373,9 @@ export default function TournamentDetailPage() {
                         <div className="space-y-2">
                           {team.team_members?.map((tm) => (
                             <div key={tm.participant.id} className="flex items-center gap-2">
-                              {tm.participant.card_image_url ? (
+                              {tm.participant.is_joker ? (
+                                <span className="text-lg">🃏</span>
+                              ) : tm.participant.card_image_url ? (
                                 <img
                                   src={tm.participant.card_image_url}
                                   alt="Card"
@@ -381,7 +383,7 @@ export default function TournamentDetailPage() {
                                 />
                               ) : (
                                 <div className="w-8 h-10 bg-muted rounded flex items-center justify-center text-xs">
-                                  {tm.participant.is_joker ? '🃏' : '-'}
+                                  -
                                 </div>
                               )}
                               <span className={tm.participant.is_joker ? 'text-yellow-500' : ''}>

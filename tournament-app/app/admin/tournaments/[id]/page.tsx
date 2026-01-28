@@ -41,8 +41,12 @@ import {
   Unlock,
   Trash2,
   Settings,
-  Swords
+  Swords,
+  Pencil,
+  Check,
+  X
 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { SKILLS } from '@/lib/constants'
 
 interface Tournament {
@@ -98,6 +102,8 @@ export default function AdminTournamentPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingSkill, setUpdatingSkill] = useState<string | null>(null)
+  const [editingTeamId, setEditingTeamId] = useState<string | null>(null)
+  const [editingTeamName, setEditingTeamName] = useState('')
 
   useEffect(() => {
     fetchTournament()
@@ -219,6 +225,40 @@ export default function AdminTournamentPage() {
       toast.error(error instanceof Error ? error.message : '대진표 생성에 실패했습니다')
     } finally {
       setActionLoading(false)
+    }
+  }
+
+  function startEditingTeam(teamId: string, currentName: string) {
+    setEditingTeamId(teamId)
+    setEditingTeamName(currentName)
+  }
+
+  function cancelEditingTeam() {
+    setEditingTeamId(null)
+    setEditingTeamName('')
+  }
+
+  async function handleUpdateTeamName(teamId: string) {
+    if (!editingTeamName.trim()) {
+      toast.error('팀명을 입력해주세요')
+      return
+    }
+    try {
+      const res = await fetch('/api/teams', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId: teamId, name: editingTeamName.trim() })
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || '팀명 변경에 실패했습니다')
+      }
+      toast.success('팀명이 변경되었습니다')
+      setEditingTeamId(null)
+      setEditingTeamName('')
+      fetchTournament()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '팀명 변경에 실패했습니다')
     }
   }
 
@@ -438,7 +478,33 @@ export default function AdminTournamentPage() {
                       <Card key={team.id} className={team.has_joker ? 'border-yellow-500/50' : ''}>
                         <CardHeader className="pb-2">
                           <CardTitle className="text-base flex items-center gap-2">
-                            {team.name}
+                            {editingTeamId === team.id ? (
+                              <div className="flex items-center gap-1 flex-1">
+                                <Input
+                                  value={editingTeamName}
+                                  onChange={(e) => setEditingTeamName(e.target.value)}
+                                  className="h-7 text-sm"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleUpdateTeamName(team.id)
+                                    if (e.key === 'Escape') cancelEditingTeam()
+                                  }}
+                                />
+                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleUpdateTeamName(team.id)}>
+                                  <Check className="h-4 w-4 text-green-500" />
+                                </Button>
+                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={cancelEditingTeam}>
+                                  <X className="h-4 w-4 text-red-500" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                {team.name}
+                                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => startEditingTeam(team.id, team.name)}>
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                              </>
+                            )}
                             {team.has_joker && <Badge variant="outline">조커</Badge>}
                           </CardTitle>
                           <CardDescription>
@@ -449,17 +515,15 @@ export default function AdminTournamentPage() {
                           <div className="space-y-2">
                             {team.team_members?.map((tm) => (
                               <div key={tm.participant.id} className="flex items-center gap-2">
-                                {tm.participant.card_image_url ? (
+                                {tm.participant.is_joker ? (
+                                  <span className="text-lg">🃏</span>
+                                ) : tm.participant.card_image_url ? (
                                   <img
                                     src={tm.participant.card_image_url}
                                     alt="Card"
                                     className="w-8 h-auto rounded"
                                   />
-                                ) : (
-                                  <div className="w-8 h-10 bg-muted rounded flex items-center justify-center text-xs">
-                                    {tm.participant.is_joker ? '🃏' : '-'}
-                                  </div>
-                                )}
+                                ) : null}
                                 <span className={tm.participant.is_joker ? 'text-yellow-500' : ''}>
                                   {tm.participant.nickname}
                                 </span>
